@@ -1,0 +1,8 @@
+v 1.0
+d 'ARCPLOT': A package for creating arc plots
+d Asjad Naqvi, 
+d asjadnaqvi@gmail.com
+d https://medium.com/the-stata-guide
+p joyplot
+
+

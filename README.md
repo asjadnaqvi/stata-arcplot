@@ -56,8 +56,8 @@ The syntax for **v1.0** is as follows:
 ```
 arcplot *num var* [if] [in], from}(str var) to(str var) 
                 [ gap(num) arcpoints(num) palette(str) alpha(num) format(str) 
-                  lwidth}(num) lcolor}(str) vallabgap(str) vallabangle(str) vallabsize(num) 
-                  xsize(num) ysize(num) title(str) subtitle(str) note({str) scheme(str) name(str) ]	
+                  lwidth(num) lcolor(str) vallabgap(str) vallabangle(str) vallabsize(num) 
+                  xsize(num) ysize(num) title(str) subtitle(str) note(str) scheme(str) name(str) ]	
 ```
 
 See the help file `help arcplot` for details.

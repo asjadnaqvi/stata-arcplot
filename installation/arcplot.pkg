@@ -1,5 +1,5 @@
 v 1.0
-d {bf:ARCPLOT}: A Stata package for joy plots.
+d {bf:ARCPLOT}: A Stata package for arc plots.
 d See {bf:help arcplot} after installation.
 d
 d Requires: Stata version 15 or higher.

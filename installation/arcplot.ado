@@ -95,13 +95,11 @@ qui {
 	gen y = 0
 
 	sum valsumtotg, meanonly
-	gen double x = valsumtotg / `r(max)'	
+	gen double x = valsumtotg / r(max)
 	
 	// get the spikes
 	sort id layer x
 				
-
-	// cap drop x1 y1 x2 y2
 				
 	gen x1 = .
 	gen y1 = .
@@ -160,12 +158,11 @@ qui {
 		summ value if id==`x' & layer==1, meanonly
 		gen double fval`x' = r(mean)		// from value
 			
-		qui summ order if id==`x' & layer==1, meanonly
+		summ order if id==`x' & layer==1, meanonly
 		local prel1 = `r(mean)' - 1
 		
 		// end future block here
-		
-		
+
 		replace boxx`x' = x if lab2==`labcat1' & order==`prel1'
 		replace boxy`x' = y if lab2==`labcat1' & order==`prel1'
 
@@ -173,15 +170,14 @@ qui {
 		*** one more item for the future. the mid point for labels on the from values
 		
 		summ boxx`x' if layer==1, meanonly
-		gen fmid`x' = r(mean)
+		gen double fmid`x' = r(mean)
 		
 		// layer 2
 
-		
-		qui summ lab2  if id==`x' & layer==2, meanonly
+		summ lab2  if id==`x' & layer==2, meanonly
 		local labcat2 = r(mean)
 		
-		qui summ order if id==`x' & layer==2, meanonly
+		summ order if id==`x' & layer==2, meanonly
 		local prel2 = `r(mean)' - 1
 		
 		replace boxx`x' = x if lab2==`labcat2' & order==`prel2'
@@ -190,8 +186,6 @@ qui {
 		
 		replace seq`x' = seq`x'[_n+1] if seq`x'[_n+1]!=.
 	}
-
-	  **** somewhere here the observations should be an expand
 
 		expand `arcpoints'  // higher the number, smoother the curve, but also slower the process
 
@@ -226,7 +220,6 @@ qui {
 				gen double t`x' = runiform(`end', `start')
 			}
 			
-
 			gen double radius`x'_in  = sqrt((`xin1'  - `midx')^2 + (0 - `midy')^2)   // from the center point 
 			gen double radius`x'_out = sqrt((`xout1' - `midx')^2 + (0 - `midy')^2)   // from the center point 
 
@@ -272,15 +265,11 @@ qui {
 		sort num level arcx
 		gen order = _n if level==1
 
-
 		gsort level -arcx
 		gen temp = _n if level==2
 
 		replace order = temp if level==2
 		drop temp
-
-
-		*egen tag1 = tag(y1 x1 y2 x2) // for the spikes
 
 		cap drop tag2
 		egen tag2 = tag(num ymid xmid) // for the mid point of spikes
@@ -323,7 +312,6 @@ qui {
 			qui summ from if num==`x'
 			local clr `r(mean)'
 			
-			*colorpalette HCL intense, n(`items') nograph 
 			colorpalette `palette', n(`items') nograph
 			
 			local arcs `arcs' (area arcy arcx if num==`x', fi(100) fc( "`r(p`clr')'%`alpha'") lw(`lwidth') lc(`lcolor')) || 

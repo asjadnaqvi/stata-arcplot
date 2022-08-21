@@ -27,7 +27,6 @@ net install arcplot, from("https://raw.githubusercontent.com/asjadnaqvi/stata-ar
 The `palettes` package is required to run this command:
 
 ```
-ssc install spmap, replace
 ssc install palettes, replace
 ssc install colrspace, replace
 ```
@@ -55,14 +54,11 @@ graph set window fontface "Arial Narrow"
 The syntax for **v1.0** is as follows:
 
 ```
-
-		
 arcplot *num var* [if] [in], from}(str var) to(str var) 
                 [ gap(num) arcpoints(num) palette(str) alpha({num) 
                   lwidth}(num) lcolor}(str) vallabangle}(str) vallabsize(num) 
                   xsize(num) ysize(num) title(str) subtitle(str)
                   note({str) scheme(str) name(str) ]	
-		
 ```
 
 See the help file `help arcplot` for details.

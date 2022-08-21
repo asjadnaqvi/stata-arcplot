@@ -3,7 +3,7 @@
 
 # arcplot v1.0
 
-This package provides the ability to arcplots in Stata. It is based on the [Arc plot Guide](https://medium.com/the-stata-guide/stata-graphs-arc-plots-eb87015510e6) that I released in October 2021.
+This package allows us to draw arc plots in Stata. It is based on the [Arc plot Guide](https://medium.com/the-stata-guide/stata-graphs-arc-plots-eb87015510e6) that I released in October 2021.
 
 
 ## Installation

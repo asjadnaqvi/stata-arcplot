@@ -7,7 +7,7 @@
 **********************************
 
 * if you want to go for even more customization, you can read this guide:
-* Arc plots (Joy plots) (6 Oct, 2020)
+* Arc plots (Joy plots) (6 Oct, 2021)
 * https://medium.com/the-stata-guide/stata-graphs-arc-plots-eb87015510e6
 
 
@@ -19,8 +19,8 @@ program arcplot, sortpreserve
 version 15
  
 	syntax varlist(min=1 max=1 numeric) [if] [in], From(varname) To(varname) 													///
-		[ gap(real 300) ARCPoints(real 50) palette(string) LColor(string) LWidth(string) ]     ///
-		[ VALLABSize(real 1.2) VALLABAngle(string) VALLAColor(string) LABColor(real 2) LABSize(real 2) alpha(real 50) ]  ///
+		[ gap(real 0.03) ARCPoints(real 50) palette(string) LColor(string) LWidth(string) alpha(real 50)    ]     ///
+		[ format(str) VALLABGap(str) VALLABSize(real 1.2) VALLABAngle(string) VALLAColor(string) LABColor(real 2) LABSize(real 2)   ]  ///
 		[ title(passthru) subtitle(passthru) note(passthru) scheme(passthru) name(passthru) xsize(passthru) ysize(passthru)	]  ///
 		[ allopt graphopts(string asis) * 																		] 
 		
@@ -74,20 +74,18 @@ qui {
 	sort lab layer order
 	drop tag tag2
 		
-	
-	
 	// generate cumulative values
 	sort lab layer order
-	bysort lab: gen valsum = sum(value)
+	bysort lab: gen double valsum = sum(value)
 
 	gen double valsumtot = sum(value)
 	sort lab layer order
 	
 	// add gaps between arcs
 	egen gap = group(lab)	
-	
-	gen double valsumtotg = valsumtot + (gap * `gap')  
-
+	summ valsumtot, meanonly
+	replace gap = gap * r(max) * `gap'
+	gen double valsumtotg = valsumtot + gap  
 
 	cap drop x 
 	cap drop y
@@ -99,34 +97,30 @@ qui {
 	
 	// get the spikes
 	sort id layer x
-				
-				
-	gen x1 = .
-	gen y1 = .
+						
+	gen double x1 = .
+	gen double y1 = .
 
-	gen x2 = .
-	gen y2 = .								
+	gen double x2 = .
+	gen double y2 = .								
 									
-
 	egen tag = tag(lab)								
 									
 	levelsof lab2, local(lvls)
 
-	foreach x of local lvls {
-		
+	foreach x of local lvls {	
 		summ x if lab2==`x'
 		replace x1 = r(min) if lab2==`x' & tag==1
 		replace x2 = r(max) if lab2==`x' & tag==1
 
 		summ y if lab2==`x'
 		replace y1 = r(min) if lab2==`x' & tag==1
-		replace y2 = r(max) if lab2==`x' & tag==1	
-		
+		replace y2 = r(max) if lab2==`x' & tag==1		
 	}
 
 
-	gen xmid = (x1 + x2) / 2
-	gen ymid = (y1 + y2) / 2		
+	gen double xmid = (x1 + x2) / 2
+	gen double ymid = (y1 + y2) / 2		
 	
 	***************************
 	*** generate the arcs   ***
@@ -141,19 +135,16 @@ qui {
 		gen boxx`x' = x if id==`x'
 		gen boxy`x' = y if id==`x'
 
-		
 		// layer 1
 		
 		gen     seq`x' = 1 if id==`x' & layer==1
 		replace seq`x' = 2 if id==`x' & layer==2
 		
-		qui summ lab2  if id==`x' & layer==1, meanonly
+		summ lab2  if id==`x' & layer==1, meanonly
 		local labcat1 = r(mean)
-		
 			
 		// start future block. these are used much later in the last step after reshape
 		gen double from`x' = r(mean)		// from node
-		
 		
 		summ value if id==`x' & layer==1, meanonly
 		gen double fval`x' = r(mean)		// from value
@@ -193,7 +184,7 @@ qui {
 
 		foreach x of local lvls { 
 		  
-			//  calculate the mid point of each box based on outlayer min x of layer 0 and max x = layer 1
+			//  calculate the mid point of each box
 
 			
 			summ boxx`x' if seq`x'==2, meanonly
@@ -220,8 +211,8 @@ qui {
 				gen double t`x' = runiform(`end', `start')
 			}
 			
-			gen double radius`x'_in  = sqrt((`xin1'  - `midx')^2 + (0 - `midy')^2)   // from the center point 
-			gen double radius`x'_out = sqrt((`xout1' - `midx')^2 + (0 - `midy')^2)   // from the center point 
+			gen double radius`x'_in  = sqrt((`xin1'  - `midx')^2 + (0 - `midy')^2)   
+			gen double radius`x'_out = sqrt((`xout1' - `midx')^2 + (0 - `midy')^2)    
 
 			gen double arcx_in`x'   = `midx' + radius`x'_in * cos(t`x')
 			gen double arcy_in`x'   = `midy' + radius`x'_in * sin(t`x')
@@ -289,6 +280,11 @@ qui {
 		if "`vallabangle'" == "" local vallabangle 90
 		if "`labcolor'"    == "" local labcolor black
 		if "`vallabcolor'" == "" local vallabcolor black
+		if "`vallabgap'"   == "" local vallabgap 2
+		
+		if "`format'" 	   == "" local format %9.0fc
+		
+		gen fval2 = string(fval, "`format'") 
 		
 		local spikes
 
@@ -309,7 +305,7 @@ qui {
 		levelsof num, local(lvls)
 		foreach x of local lvls {
 			
-			qui summ from if num==`x'
+			summ from if num==`x', meanonly
 			local clr `r(mean)'
 			
 			colorpalette `palette', n(`items') nograph
@@ -323,7 +319,7 @@ qui {
 			`arcs' ///
 			`spikes' ///
 			(scatter ymid xmid if num==1 & tag2==1, msize(vsmall) mcolor(none) mlabsize(`labsize') mlab(lab2) mlabpos(6)  ) 	///
-			(scatter y fmid, mcolor(none) mlabsize(`vallabsize') mlab(fval) mlabpos(12) mlabangle(`vallabangle') mlabgap(1.8) ) ///
+			(scatter y fmid, mcolor(none) mlabsize(`vallabsize') mlab(fval2) mlabpos(12) mlabangle(`vallabangle') mlabgap(`vallabgap') ) ///
 				, legend(off) ///
 					ylabel(0 0.6, nogrid) xlabel(0 1, nogrid) aspect(0.6)	///
 					xscale(off) yscale(off)	`scheme' `name' `title' `subtitle' `note' `xsize' `ysize'

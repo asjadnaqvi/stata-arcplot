@@ -55,10 +55,9 @@ The syntax for **v1.0** is as follows:
 
 ```
 arcplot *num var* [if] [in], from}(str var) to(str var) 
-                [ gap(num) arcpoints(num) palette(str) alpha({num) 
-                  lwidth}(num) lcolor}(str) vallabangle}(str) vallabsize(num) 
-                  xsize(num) ysize(num) title(str) subtitle(str)
-                  note({str) scheme(str) name(str) ]	
+                [ gap(num) arcpoints(num) palette(str) alpha(num) format(str) 
+                  lwidth}(num) lcolor}(str) vallabgap(str) vallabangle(str) vallabsize(num) 
+                  xsize(num) ysize(num) title(str) subtitle(str) note({str) scheme(str) name(str) ]	
 ```
 
 See the help file `help arcplot` for details.
@@ -84,10 +83,17 @@ use "https://github.com/asjadnaqvi/stata-arcplot/blob/main/data/sankey_example.d
 Let's test the `arcplot` command:
 
 ```
-arcplot value, from(source) to(destination) alpha(60) gap(500)
+arcplot value, from(source) to(destination)
 ```
 
 <img src="/figures/arcplot1.png" height="600">
+
+
+```
+arcplot value, f(source) t(destination) alpha(40) format(%9.2fc) gap(0.01) vallabg(3) vallabs(1.5) lc(black) lw(0.03) palette(scico romaO)
+```
+
+<img src="/figures/arcplot2.png" height="600">
 
 
 ## Feedback

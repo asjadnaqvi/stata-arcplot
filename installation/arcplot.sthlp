@@ -14,11 +14,9 @@ The command is based on the following guide on Medium: {browse "https://medium.c
 {p 8 15 2}
 
 {cmd:arcplot} {it:value} {ifin}, {cmdab:f:rom}({it:str var}) {cmdab:t:o}({it:str var}) 
-                {cmd:[} {cmd:gap}({it:num}) {cmdab:arcp:oints}({it:num}) {cmd:palette}({it:str}) {cmd:alpha}({it:num}) 
-                {cmdab:lw:idth}({it:num}) {cmdab:lc:olor}({it:str}) {cmdab:vallaba:ngle}({it:str}) {cmdab:vallabs:ize}({it:num}) 
-                {cmd:xsize}({it:num}) {cmd:ysize}({it:num}) {cmd:title}({it:str}) {cmd:subtitle}({it:str})
-                {cmd:note}({it:str}) {cmd:scheme}({it:str}) {cmd:name}({it:str}) {cmd:]}
-
+                {cmd:[} {cmd:gap}({it:num}) {cmdab:arcp:oints}({it:num}) {cmd:palette}({it:str}) {cmd:alpha}({it:num}) {cmd:format}({it:str})
+                {cmdab:lw:idth}({it:num}) {cmdab:lc:olor}({it:str}) {cmdab:vallabg:ap}({it:str}) {cmdab:vallaba:ngle}({it:str}) {cmdab:vallabs:ize}({it:num}) {cmdab:vallabc:olor}({it:str}) 
+                {cmd:xsize}({it:num}) {cmd:ysize}({it:num}) {cmd:title}({it:str}) {cmd:subtitle}({it:str}) {cmd:note}({it:str}) {cmd:scheme}({it:str}) {cmd:name}({it:str}) {cmd:]}
 
 {p 4 4 2}
 
@@ -33,7 +31,7 @@ The command is based on the following guide on Medium: {browse "https://medium.c
 
 {p2coldent : {opt t:o(str var)}}This is the destination or ending variable. This should be a string variable.{p_end}
 
-{p2coldent : {opt gap(num)}}Gap between the horizontal lines. Default value is {it:300}.{p_end}
+{p2coldent : {opt gap(num)}}Gap between the horizontal bars. Default value is {it:0.03} or 3% of value total.{p_end}
 
 {p2coldent : {opt arcp:oints(num)}}Number of arc sample points. Higher value equals smoother arcs. Default value is {it:50}.{p_end}
 
@@ -44,6 +42,8 @@ The command is based on the following guide on Medium: {browse "https://medium.c
 {p2coldent : {opt lc:olor(str)}}The outline color of the area fill. Default is {it:black}.{p_end}
 
 {p2coldent : {opt lw:idth(num)}}The outline width of the area fill. Default is {it:none}.{p_end}
+
+{p2coldent : {opt vallabg:ap(str)}}The gap of the value labels from the horizontal bars. The default value is {it:2}.{p_end}
 
 {p2coldent : {opt vallaba:ngle(str)}}The angle of the value labels. The default value is {it:90} for 90 degrees.{p_end}
 
@@ -69,7 +69,7 @@ The command is based on the following guide on Medium: {browse "https://medium.c
 
 {title:Dependencies}
 
-The {browse "http://repec.sowi.unibe.ch/stata/palettes/index.html":palette} package (Jann 2018) is required for {cmd:joyplot}:
+The {browse "http://repec.sowi.unibe.ch/stata/palettes/index.html":palette} package (Jann 2018) is required for {cmd:arcplot}:
 
 {stata ssc install palettes, replace}
 {stata ssc install colrspace, replace}

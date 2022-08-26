@@ -1,4 +1,4 @@
-*! arcplot v1.0 22 Jun 2022:- beta release
+*! arcplot v1.0 22 Jun 2022. beta release
 *! Asjad Naqvi 
 
 
@@ -54,7 +54,6 @@ qui {
 	
 	sort lab2 lab1
 	
-	tempvar id
 	gen id = _n
 
 	reshape long lab, i(id) j(layer)
@@ -87,40 +86,37 @@ qui {
 	replace gap = gap * r(max) * `gap'
 	gen double valsumtotg = valsumtot + gap  
 
-	cap drop x 
-	cap drop y
-
-	gen y = 0
+	gen _y = 0
 
 	sum valsumtotg, meanonly
-	gen double x = valsumtotg / r(max)
+	gen double _x = valsumtotg / r(max)
 	
 	// get the spikes
-	sort id layer x
+	sort id layer _x
 						
-	gen double x1 = .
-	gen double y1 = .
+	gen double _x1 = .
+	gen double _y1 = .
 
-	gen double x2 = .
-	gen double y2 = .								
+	gen double _x2 = .
+	gen double _y2 = .								
 									
 	egen tag = tag(lab)								
 									
 	levelsof lab2, local(lvls)
 
 	foreach x of local lvls {	
-		summ x if lab2==`x'
-		replace x1 = r(min) if lab2==`x' & tag==1
-		replace x2 = r(max) if lab2==`x' & tag==1
+		summ _x if lab2==`x'
+		replace _x1 = r(min) if lab2==`x' & tag==1
+		replace _x2 = r(max) if lab2==`x' & tag==1
 
-		summ y if lab2==`x'
-		replace y1 = r(min) if lab2==`x' & tag==1
-		replace y2 = r(max) if lab2==`x' & tag==1		
+		summ _y if lab2==`x'
+		replace _y1 = r(min) if lab2==`x' & tag==1
+		replace _y2 = r(max) if lab2==`x' & tag==1		
 	}
 
 
-	gen double xmid = (x1 + x2) / 2
-	gen double ymid = (y1 + y2) / 2		
+	gen double xmid = (_x1 + _x2) / 2
+	gen double ymid = (_y1 + _y2) / 2		
 	
 	***************************
 	*** generate the arcs   ***
@@ -132,8 +128,8 @@ qui {
 
 	foreach x of local lvls {
 		
-		gen boxx`x' = x if id==`x'
-		gen boxy`x' = y if id==`x'
+		gen boxx`x' = _x if id==`x'
+		gen boxy`x' = _y if id==`x'
 
 		// layer 1
 		
@@ -154,8 +150,8 @@ qui {
 		
 		// end future block here
 
-		replace boxx`x' = x if lab2==`labcat1' & order==`prel1'
-		replace boxy`x' = y if lab2==`labcat1' & order==`prel1'
+		replace boxx`x' = _x if lab2==`labcat1' & order==`prel1'
+		replace boxy`x' = _y if lab2==`labcat1' & order==`prel1'
 
 		
 		*** one more item for the future. the mid point for labels on the from values
@@ -171,8 +167,8 @@ qui {
 		summ order if id==`x' & layer==2, meanonly
 		local prel2 = `r(mean)' - 1
 		
-		replace boxx`x' = x if lab2==`labcat2' & order==`prel2'
-		replace boxy`x' = y if lab2==`labcat2' & order==`prel2'
+		replace boxx`x' = _x if lab2==`labcat2' & order==`prel2'
+		replace boxy`x' = _y if lab2==`labcat2' & order==`prel2'
 		
 		
 		replace seq`x' = seq`x'[_n+1] if seq`x'[_n+1]!=.
@@ -186,7 +182,6 @@ qui {
 		  
 			//  calculate the mid point of each box
 
-			
 			summ boxx`x' if seq`x'==2, meanonly
 				local xout1 = r(min)
 				local  xin1 = r(max)
@@ -223,18 +218,17 @@ qui {
 		}
 
 		cap drop tag*
-		egen tag = tag(y x)
+		egen tag = tag(_y _x)
 		egen taglab = tag(ymid xmid)
 
 		sort lab layer order		
 		
-		keep id y1 x1 y2 x2 ymid xmid arc* from* layer value lab2 fval* fmid*
+		keep _y1 _x1 _y2 _x2 ymid xmid arc* from* layer value lab2 fval* fmid*
 
-		drop id
 		gen id = _n  // dummy for reshape
 					
 				
-		reshape long arcx_in arcy_in arcx_out arcy_out from fval fmid, i(id x1 y1 x2 y2 xmid ymid layer value lab2) j(num)		
+		reshape long arcx_in arcy_in arcx_out arcy_out from fval fmid, i(id _x1 _y1 _x2 _y2 xmid ymid layer value lab2) j(num)		
 
 		ren arcx_in arcx1
 		ren arcy_in arcy1
@@ -242,11 +236,11 @@ qui {
 		ren arcx_out arcx2
 		ren arcy_out arcy2		
 		
-		reshape long arcx arcy, i(id x1 y1 x2 y2 num lab2 layer value) j(level)	
+		reshape long arcx arcy, i(id _x1 _y1 _x2 _y2 num lab2 layer value) j(level)	
 		
 		// control variables
 		egen tag = tag(num)	
-		gen y = 0 if tag==1		
+		gen _y = 0 if tag==1		
 
 		sort level num arcx	
 		
@@ -263,7 +257,7 @@ qui {
 		drop temp
 
 		cap drop tag2
-		egen tag2 = tag(num ymid xmid) // for the mid point of spikes
+		egen tag2 = tag(num ymid xmid) 
 
 
 		sort num level order	
@@ -295,7 +289,8 @@ qui {
 
 			colorpalette `palette', n(`items') nograph
 			
-			local spikes `spikes' (pcspike y1 x1 y2 x2 if num==1 & lab==`x', lc( "`r(p`x')'") lwidth(1.5))	
+			local spikes `spikes' (pcspike _y1 _x1 _y2 _x2 if num==1 & lab==`x', lc( "`r(p`x')'") lwidth(1.5))	||
+			
 		}
 
 
@@ -319,12 +314,13 @@ qui {
 			`arcs' ///
 			`spikes' ///
 			(scatter ymid xmid if num==1 & tag2==1, msize(vsmall) mcolor(none) mlabsize(`labsize') mlab(lab2) mlabpos(6)  ) 	///
-			(scatter y fmid, mcolor(none) mlabsize(`vallabsize') mlab(fval2) mlabpos(12) mlabangle(`vallabangle') mlabgap(`vallabgap') ) ///
+			(scatter _y fmid, mcolor(none) mlabsize(`vallabsize') mlab(fval2) mlabpos(12) mlabangle(`vallabangle') mlabgap(`vallabgap') ) ///
 				, legend(off) ///
 					ylabel(0 0.6, nogrid) xlabel(0 1, nogrid) aspect(0.6)	///
 					xscale(off) yscale(off)	`scheme' `name' `title' `subtitle' `note' `xsize' `ysize'
 		
 }
+
 restore				
 		
 end

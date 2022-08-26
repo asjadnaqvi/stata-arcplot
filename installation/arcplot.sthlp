@@ -1,5 +1,5 @@
 {smcl}
-{* 22June2022}{...}
+{* 26August2022}{...}
 {hi:help arcplot}{...}
 {right:{browse "https://github.com/asjadnaqvi/stata-arcplot":arcplot v1.0 (GitHub)}}
 
@@ -13,7 +13,7 @@ The command is based on the following guide on Medium: {browse "https://medium.c
 {marker syntax}{title:Syntax}
 {p 8 15 2}
 
-{cmd:arcplot} {it:value} {ifin}, {cmdab:f:rom}({it:str var}) {cmdab:t:o}({it:str var}) 
+{cmd:arcplot} {it:variable} {ifin}, {cmdab:f:rom}({it:str var}) {cmdab:t:o}({it:str var}) 
                 {cmd:[} {cmd:gap}({it:num}) {cmdab:arcp:oints}({it:num}) {cmd:palette}({it:str}) {cmd:alpha}({it:num}) {cmd:format}({it:str})
                 {cmdab:lw:idth}({it:num}) {cmdab:lc:olor}({it:str}) {cmdab:vallabg:ap}({it:str}) {cmdab:vallaba:ngle}({it:str}) {cmdab:vallabs:ize}({it:num}) {cmdab:vallabc:olor}({it:str}) 
                 {cmd:xsize}({it:num}) {cmd:ysize}({it:num}) {cmd:title}({it:str}) {cmd:subtitle}({it:str}) {cmd:note}({it:str}) {cmd:scheme}({it:str}) {cmd:name}({it:str}) {cmd:]}
@@ -25,7 +25,7 @@ The command is based on the following guide on Medium: {browse "https://medium.c
 {synopthdr}
 {synoptline}
 
-{p2coldent : {opt arcplot value}}The command requires a numeric variable variable that contains the values.{p_end}
+{p2coldent : {opt arcplot variable}}The command requires a numeric variable that contains the values that need to be plotted.{p_end}
 
 {p2coldent : {opt f:rom(str var)}}This is the source or starting variable. This should be a string variable.{p_end}
 
@@ -79,7 +79,7 @@ Even if you have these installed, it is highly recommended to update the depende
 
 {title:Examples}
 
-It's too much work to write this so check {browse "https://github.com/asjadnaqvi/arcplot":GitHub}. Coming here soon...
+Check {browse "https://github.com/asjadnaqvi/arcplot":GitHub} for examples.
 
 
 
@@ -91,11 +91,10 @@ It's too much work to write this so check {browse "https://github.com/asjadnaqvi
 - {bf:1.0} : First version.
 
 
-
 {title:Package details}
 
 Version      : {bf:arcplot} v1.0
-This release : 21 Aug 2022
+This release : 26 Aug 2022
 First release: 21 Aug 2021
 Repository   : {browse "https://github.com/asjadnaqvi/arcplot":GitHub}
 Keywords     : Stata, graph, arc plot

@@ -10,13 +10,13 @@ This package allows us to draw arc plots in Stata. It is based on the [Arc plot 
 
 The package can be installed via SSC or GitHub. The GitHub version, *might* be more recent due to bug fixes, feature updates etc, and *may* contain syntax improvements and changes in *default* values. See version numbers below. Eventually the GitHub version is published on SSC.
 
-The package can be installed from SSC (**v1.0**):
+SSC (**v1.0**):
 
 ```
-coming soon!
+ssc install arcplot, replace
 ```
 
-Or it can be installed from GitHub (**v1.0**):
+GitHub (**v1.0**):
 
 ```
 net install arcplot, from("https://raw.githubusercontent.com/asjadnaqvi/stata-arcplot/main/installation/") replace

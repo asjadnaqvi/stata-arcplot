@@ -1,48 +1,54 @@
-*! arcplot v1.0 22 Jun 2022. beta release
+*! arcplot v1.1 (22 Jun 2022)
 *! Asjad Naqvi 
+
+* v1.1 08Nov2022. Several bug fixes. Improvements to code. Gtools added.
+* v1.0 22Jun2022. First beta release
 
 
 **********************************
 * Step-by-step guide on Medium   *
 **********************************
 
-* if you want to go for even more customization, you can read this guide:
-* Arc plots (Joy plots) (6 Oct, 2021)
+* if you want to go for even more customization, you can read the 
+* Arc plots (6 Oct, 2021) guide:
 * https://medium.com/the-stata-guide/stata-graphs-arc-plots-eb87015510e6
 
 
 cap program drop arcplot
 
 
-program arcplot, sortpreserve
+program arcplot, // sortpreserve
 
 version 15
  
-	syntax varlist(min=1 max=1 numeric) [if] [in], From(varname) To(varname) 													///
-		[ gap(real 0.03) ARCPoints(real 50) palette(string) LColor(string) LWidth(string) alpha(real 50)    ]     ///
-		[ format(str) VALLABGap(str) VALLABSize(real 1.2) VALLABAngle(string) VALLAColor(string) LABColor(real 2) LABSize(real 2)   ]  ///
-		[ title(passthru) subtitle(passthru) note(passthru) scheme(passthru) name(passthru) xsize(passthru) ysize(passthru)	]  ///
-		[ allopt graphopts(string asis) * 																		] 
+	syntax varlist(min=1 max=1 numeric) [if] [in], From(varname) To(varname) 			  									///
+		[ gap(real 0.03) ARCPoints(real 50) palette(string) LColor(string) LWidth(string) alpha(real 50) format(str)     ]  ///
+		[ VALLABGap(str) VALLABSize(string) VALLABAngle(string) VALLABColor(string)  					]  ///
+		[    LABGap(str)    LABSize(string)      LABAngle(string)    LABColor(string) LABPos(string)  ]  ///
+		[ title(passthru) subtitle(passthru) note(passthru) scheme(passthru) name(passthru) xsize(passthru) ysize(passthru)	]  
 		
 		
 	// check dependencies
 	capture findfile colorpalette.ado
 	if _rc != 0 {
-		display as error "The palettes package is missing. Install the {stata ssc install palettes, replace:palettes} and {stata ssc install colrspace, replace:colrspace} packages."
+		display as error "The {bf:palettes} package is missing. Click to install: {stata ssc install palettes, replace:palettes} and {stata ssc install colrspace, replace:colrspace}."
 		exit
 	}
 	
+	capture findfile gtools.ado
+	if _rc != 0 {
+		display as error "The {bf:gtools} package is missing. Click to install: {stata ssc install gtools, replace:gtools}."
+		exit
+	}
 	
 	capture findfile labmask.ado
 	if _rc != 0 {
-		display as error "The {it:labmask} package is missing. Click {stata ssc install labutil, replace} to install."
-		exit
+		qui install labutil, replace
 	}		
 	
 	marksample touse, strok
 	
 preserve	
-
 qui {
 	
 	keep if `touse'
@@ -56,17 +62,17 @@ qui {
 	
 	gen id = _n
 
-	reshape long lab, i(id) j(layer)
+	greshape long lab, i(id) j(layer)
 
 	encode lab, gen(lab2)
 	
-	sort lab layer value
+	sort lab layer `varlist'
 	bysort lab: gen order = _n
 	
 	egen tag = tag(lab)
 
 	expand 2 if tag==1, gen(tag2)
-	replace value = 0 if tag2==1 // duplicate entries are labeled as zero
+	replace `varlist' = 0 if tag2==1 // duplicate entries are labeled as zero
 	replace order = 0 if tag2==1
 	replace id    = 0 if tag2==1
 
@@ -75,9 +81,9 @@ qui {
 		
 	// generate cumulative values
 	sort lab layer order
-	bysort lab: gen double valsum = sum(value)
+	bysort lab: gen double valsum = sum(`varlist')
 
-	gen double valsumtot = sum(value)
+	gen double valsumtot = sum(`varlist')
 	sort lab layer order
 	
 	// add gaps between arcs
@@ -142,7 +148,7 @@ qui {
 		// start future block. these are used much later in the last step after reshape
 		gen double from`x' = r(mean)		// from node
 		
-		summ value if id==`x' & layer==1, meanonly
+		summ `varlist' if id==`x' & layer==1, meanonly
 		gen double fval`x' = r(mean)		// from value
 			
 		summ order if id==`x' & layer==1, meanonly
@@ -223,12 +229,12 @@ qui {
 
 		sort lab layer order		
 		
-		keep _y1 _x1 _y2 _x2 ymid xmid arc* from* layer value lab2 fval* fmid*
+		keep _y1 _x1 _y2 _x2 ymid xmid arc* from* layer `varlist' lab2 fval* fmid*
 
 		gen id = _n  // dummy for reshape
 					
 				
-		reshape long arcx_in arcy_in arcx_out arcy_out from fval fmid, i(id _x1 _y1 _x2 _y2 xmid ymid layer value lab2) j(num)		
+		greshape long arcx_in arcy_in arcx_out arcy_out from fval fmid, i(id _x1 _y1 _x2 _y2 xmid ymid layer `varlist' lab2) j(num)		
 
 		ren arcx_in arcx1
 		ren arcy_in arcy1
@@ -236,7 +242,7 @@ qui {
 		ren arcx_out arcx2
 		ren arcy_out arcy2		
 		
-		reshape long arcx arcy, i(id _x1 _y1 _x2 _y2 num lab2 layer value) j(level)	
+		greshape long arcx arcy, i(id _x1 _y1 _x2 _y2 num lab2 layer `varlist') j(level)	
 		
 		// control variables
 		egen tag = tag(num)	
@@ -271,10 +277,17 @@ qui {
 		if "`palette'"     == "" local palette CET C1
 		if "`lcolor'"      == "" local lcolor black
 		if "`lwidth'"      == "" local lwidth none
-		if "`vallabangle'" == "" local vallabangle 90
+		
 		if "`labcolor'"    == "" local labcolor black
+		if "`labangle'"    == "" local labangle 0
+		if "`labgap'"      == "" local labgap 0.5
+		if "`labpos'"      == "" local labpos 6
+		if "`labsize'"     == "" local labsize 2
+		
+		if "`vallabangle'" == "" local vallabangle 90
 		if "`vallabcolor'" == "" local vallabcolor black
 		if "`vallabgap'"   == "" local vallabgap 2
+		if "`vallabsize'"  == "" local vallabsize 1.2
 		
 		if "`format'" 	   == "" local format %9.0fc
 		
@@ -292,8 +305,6 @@ qui {
 			local spikes `spikes' (pcspike _y1 _x1 _y2 _x2 if num==1 & lab==`x', lc( "`r(p`x')'") lwidth(1.5))	||
 			
 		}
-
-
 				
 		local arcs		
 				
@@ -313,14 +324,13 @@ qui {
 		twoway ///
 			`arcs' ///
 			`spikes' ///
-			(scatter ymid xmid if num==1 & tag2==1, msize(vsmall) mcolor(none) mlabsize(`labsize') mlab(lab2) mlabpos(6)  ) 	///
-			(scatter _y fmid, mcolor(none) mlabsize(`vallabsize') mlab(fval2) mlabpos(12) mlabangle(`vallabangle') mlabgap(`vallabgap') ) ///
+			(scatter ymid xmid if num==1 & tag2==1, mcolor(none) mlabsize(`labsize')    mlab(lab2)  mlabpos(`labpos') mlabangle(`labangle')    mlabgap(`labgap') ) 	                           ///
+			(scatter _y fmid                      , mcolor(none) mlabsize(`vallabsize') mlab(fval2) mlabpos(12)       mlabangle(`vallabangle') mlabgap(`vallabgap') mlabcolor(`vallabcolor') ) ///
 				, legend(off) ///
 					ylabel(0 0.6, nogrid) xlabel(0 1, nogrid) aspect(0.6)	///
 					xscale(off) yscale(off)	`scheme' `name' `title' `subtitle' `note' `xsize' `ysize'
 		
 }
-
 restore				
 		
 end

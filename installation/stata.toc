@@ -1,4 +1,4 @@
-v 1.0
+v 1.1
 d 'ARCPLOT': A Stata package for creating arc plots
 d Asjad Naqvi, 
 d asjadnaqvi@gmail.com

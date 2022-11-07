@@ -1,9 +1,9 @@
 
 ![StataMin](https://img.shields.io/badge/stata-2015-blue) ![issues](https://img.shields.io/github/issues/asjadnaqvi/stata-arcplot) ![license](https://img.shields.io/github/license/asjadnaqvi/stata-arcplot) ![Stars](https://img.shields.io/github/stars/asjadnaqvi/stata-arcplot) ![version](https://img.shields.io/github/v/release/asjadnaqvi/stata-arcplot) ![release](https://img.shields.io/github/release-date/asjadnaqvi/stata-arcplot)
 
-# arcplot v1.0
+# arcplot v1.1
 
-This package allows us to draw arc plots in Stata. It is based on the [Arc plot Guide](https://medium.com/the-stata-guide/stata-graphs-arc-plots-eb87015510e6) that I released in October 2021.
+This package allows us to draw arc plots in Stata. It is based on the [Arc plot Guide](https://medium.com/the-stata-guide/stata-graphs-arc-plots-eb87015510e6) (October 2021).
 
 
 ## Installation
@@ -16,7 +16,7 @@ SSC (**v1.0**):
 ssc install arcplot, replace
 ```
 
-GitHub (**v1.0**):
+GitHub (**v1.1**):
 
 ```
 net install arcplot, from("https://raw.githubusercontent.com/asjadnaqvi/stata-arcplot/main/installation/") replace
@@ -56,7 +56,9 @@ The syntax for **v1.0** is as follows:
 ```
 arcplot *num var* [if] [in], from}(str var) to(str var) 
                 [ gap(num) arcpoints(num) palette(str) alpha(num) format(str) 
-                  lwidth(num) lcolor(str) vallabgap(str) vallabangle(str) vallabsize(num) 
+                  lwidth(num) lcolor(str) 
+				  labgap(str) labangle(str) labsize(str) labpos(str) labcolor(str)
+				  vallabgap(str) vallabangle(str) vallabsize(str) vallabpos(str) vallabcolor(str)
                   xsize(num) ysize(num) title(str) subtitle(str) note(str) scheme(str) name(str) ]	
 ```
 
@@ -102,6 +104,12 @@ Please open an [issue](https://github.com/asjadnaqvi/stata-arcplot/issues) to re
 
 
 ## Versions
+
+
+**v1.1 (08 Nov 2022)**
+- Several bug fixes.
+- Better label controls.
+- Gtools added for faster reshapes.
 
 
 **v1.0 (21 Aug 2022)**

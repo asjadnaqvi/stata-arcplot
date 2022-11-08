@@ -54,9 +54,8 @@ graph set window fontface "Arial Narrow"
 The syntax for **v1.1** is as follows:
 
 ```
-arcplot *num var* [if] [in], from}(str var) to(str var) 
-                [ gap(num) arcpoints(num) palette(str) alpha(num) format(str) 
-                  lwidth(num) lcolor(str) 
+arcplot *num var* [if] [in], from(str var) to(str var) 
+                [ gap(num) arcpoints(num) palette(str) alpha(num) format(str) lwidth(num) lcolor(str) 
 				  labgap(str) labangle(str) labsize(str) labpos(str) labcolor(str)
 				  vallabgap(str) vallabangle(str) vallabsize(str) vallabpos(str) vallabcolor(str)
                   xsize(num) ysize(num) title(str) subtitle(str) note(str) scheme(str) name(str) ]	

@@ -51,7 +51,7 @@ graph set window fontface "Arial Narrow"
 
 ## Syntax
 
-The syntax for **v1.0** is as follows:
+The syntax for **v1.1** is as follows:
 
 ```
 arcplot *num var* [if] [in], from}(str var) to(str var) 

@@ -1,7 +1,7 @@
-*! arcplot v1.1 (22 Jun 2022)
+*! arcplot v1.1 (18 Nov 2022)
 *! Asjad Naqvi 
 
-* v1.1 08Nov2022. Several bug fixes. Improvements to code. Gtools added.
+* v1.1 18Nov2022. Several bug fixes. Improvements to code. Gtools added.
 * v1.0 22Jun2022. First beta release
 
 
@@ -43,7 +43,7 @@ version 15
 	
 	capture findfile labmask.ado
 	if _rc != 0 {
-		qui install labutil, replace
+		qui ssc install labutil, replace
 	}		
 	
 	marksample touse, strok

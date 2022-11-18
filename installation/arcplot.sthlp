@@ -1,5 +1,5 @@
 {smcl}
-{* 08November2022}{...}
+{* 18November2022}{...}
 {hi:help arcplot}{...}
 {right:{browse "https://github.com/asjadnaqvi/stata-arcplot":arcplot v1.1 (GitHub)}}
 

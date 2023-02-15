@@ -1,7 +1,7 @@
 {smcl}
-{* 18November2022}{...}
+{* 16Feb2023}{...}
 {hi:help arcplot}{...}
-{right:{browse "https://github.com/asjadnaqvi/stata-arcplot":arcplot v1.1 (GitHub)}}
+{right:{browse "https://github.com/asjadnaqvi/stata-arcplot":arcplot v1.2 (GitHub)}}
 
 {hline}
 
@@ -78,7 +78,7 @@ The command is based on the following guide on Medium: {browse "https://medium.c
 
 {title:Dependencies}
 
-{cmd:arcplot} requires {browse "http://repec.sowi.unibe.ch/stata/palettes/index.html":palettes} package (Jann 2018):
+{cmd:arcplot} requires {browse "http://repec.sowi.unibe.ch/stata/palettes/index.html":palettes} package (Jann 2018, 2022):
 
 {stata ssc install palettes, replace}
 {stata ssc install colrspace, replace}
@@ -100,15 +100,16 @@ Check {browse "https://github.com/asjadnaqvi/arcplot":GitHub} for examples.
 
 {title:Version history}
 
+- {bf:1.2} : Major speed improvement by flattening the code.
 - {bf:1.1} : Various bug fixes. Improvements to label controls. Gtools added for faster reshaping.
 - {bf:1.0} : First version.
 
 
 {title:Package details}
 
-Version      : {bf:arcplot} v1.1
-This release : 08 Nov 2022
-First release: 21 Aug 2021
+Version      : {bf:arcplot} v1.2
+This release : 16 Feb 2023
+First release: 22 Jun 2022
 Repository   : {browse "https://github.com/asjadnaqvi/arcplot":GitHub}
 Keywords     : Stata, graph, arc plot
 License      : {browse "https://opensource.org/licenses/MIT":MIT}
@@ -116,9 +117,6 @@ License      : {browse "https://opensource.org/licenses/MIT":MIT}
 Author       : {browse "https://github.com/asjadnaqvi":Asjad Naqvi}
 E-mail       : asjadnaqvi@gmail.com
 Twitter      : {browse "https://twitter.com/AsjadNaqvi":@AsjadNaqvi}
-
-
-{title:Acknowledgements}
 
 
 
@@ -130,4 +128,11 @@ Please submit bugs, errors, feature requests on {browse "https://github.com/asja
 
 {p 4 8 2}Jann, B. (2018). {browse "https://www.stata-journal.com/article.html?article=gr0075":Color palettes for Stata graphics}. The Stata Journal 18(4): 765-785.
 
+{p 4 8 2}Jann, B. (2022). {browse "https://ideas.repec.org/p/bss/wpaper/43.html":Color palettes for Stata graphics: an update}. University of Bern Social Sciences Working Papers No. 43. 
+
 {p 4 8 2}Caceres, M. (2022). {browse "https://gtools.readthedocs.io/en/latest/":Gtools website}.
+
+
+{psee}
+    {helpb alluvial}, {helpb circlebar}, {helpb spider}, {helpb treemap}, {helpb circlepack}, {helpb sankey}, {helpb treecluster}, {helpb sunburst}
+	{helpb marimekko}, {helpb bimap}, {helpb joyplot}, {helpb streamplot}, {helpb delaunay}, {helpb clipgeo}, {helpb schemepack}

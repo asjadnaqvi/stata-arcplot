@@ -1,28 +1,28 @@
-*! arcplot v1.1 (18 Nov 2022)
+*! arcplot v1.2 (16 Feb 2023)
 *! Asjad Naqvi 
 
-* v1.1 18Nov2022. Several bug fixes. Improvements to code. Gtools added.
-* v1.0 22Jun2022. First beta release
+* v1.2 16 Feb 2023. Major speed improvements through a flat structure
+* v1.1 18 Nov 2022. Several bug fixes. Improvements to code. Gtools added.
+* v1.0 22 Jun 2022. First beta release
 
 
 **********************************
 * Step-by-step guide on Medium   *
 **********************************
 
-* if you want to go for even more customization, you can read the 
-* Arc plots (6 Oct, 2021) guide:
+* if you want to go for even more customization, you can read the Arcplots (6 Oct 2021) guide:
 * https://medium.com/the-stata-guide/stata-graphs-arc-plots-eb87015510e6
 
 
 cap program drop arcplot
 
 
-program arcplot, // sortpreserve
+program arcplot, sortpreserve
 
 version 15
  
 	syntax varlist(min=1 max=1 numeric) [if] [in], From(varname) To(varname) 			  									///
-		[ gap(real 0.03) ARCPoints(real 50) palette(string) LColor(string) LWidth(string) alpha(real 50) format(str)     ]  ///
+		[ gap(real 0.03) ARCPoints(real 100) palette(string) LColor(string) LWidth(string) alpha(real 50) format(str)     ]  ///
 		[ VALLABGap(str) VALLABSize(string) VALLABAngle(string) VALLABColor(string)  					]  ///
 		[    LABGap(str)    LABSize(string)      LABAngle(string)    LABColor(string) LABPos(string)  ]  ///
 		[ title(passthru) subtitle(passthru) note(passthru) scheme(passthru) name(passthru) xsize(passthru) ysize(passthru)	]  
@@ -41,10 +41,6 @@ version 15
 		exit
 	}
 	
-	capture findfile labmask.ado
-	if _rc != 0 {
-		qui ssc install labutil, replace
-	}		
 	
 	marksample touse, strok
 	
@@ -127,7 +123,15 @@ qui {
 	***************************
 	*** generate the arcs   ***
 	***************************
-	
+
+	// set obs
+	if _N < `arcpoints' {
+		set obs `=`arcpoints' + 1'	
+	}
+	else {
+		local arcpoints  = `=_N - 1'
+	}
+
 
 	sort lab layer order 
 	levelsof id if layer==1 & order!=0, local(lvls)
@@ -138,7 +142,6 @@ qui {
 		gen boxy`x' = _y if id==`x'
 
 		// layer 1
-		
 		gen     seq`x' = 1 if id==`x' & layer==1
 		replace seq`x' = 2 if id==`x' & layer==2
 		
@@ -155,18 +158,15 @@ qui {
 		local prel1 = `r(mean)' - 1
 		
 		// end future block here
-
 		replace boxx`x' = _x if lab2==`labcat1' & order==`prel1'
 		replace boxy`x' = _y if lab2==`labcat1' & order==`prel1'
 
 		
 		*** one more item for the future. the mid point for labels on the from values
-		
 		summ boxx`x' if layer==1, meanonly
 		gen double fmid`x' = r(mean)
 		
 		// layer 2
-
 		summ lab2  if id==`x' & layer==2, meanonly
 		local labcat2 = r(mean)
 		
@@ -180,8 +180,12 @@ qui {
 		replace seq`x' = seq`x'[_n+1] if seq`x'[_n+1]!=.
 	}
 
-		expand `arcpoints'  // higher the number, smoother the curve, but also slower the process
-
+		gen seq = _n
+		local increment = _pi / `=`arcpoints' - 1'
+		gen double t = `increment' * (seq - 1) in 1/`arcpoints'  // keep last observation free
+		
+		
+		
 		levelsof id if layer==1 & order!=0, local(lvls)
 
 		foreach x of local lvls { 
@@ -201,74 +205,56 @@ qui {
 			local midy = 0 	
 
 			
-			local start = atan2(0 - `midy', `xout2' - `midx')
-			local end   = atan2(0 - `midy', `xout1' - `midx') 
-			
-			
-			if `start' < `end' {
-				gen double t`x' = runiform(`start', `end')
-			}
-			else {
-				gen double t`x' = runiform(`end', `start')
-			}
-			
-			gen double radius`x'_in  = sqrt((`xin1'  - `midx')^2 + (0 - `midy')^2)   
-			gen double radius`x'_out = sqrt((`xout1' - `midx')^2 + (0 - `midy')^2)    
+			gen double radius`x'_in  = sqrt((`xin1'  - `midx')^2 + (0 - `midy')^2)  in 1/`arcpoints'  
+			gen double radius`x'_out = sqrt((`xout1' - `midx')^2 + (0 - `midy')^2)  in 1/`arcpoints'   
 
-			gen double arcx_in`x'   = `midx' + radius`x'_in * cos(t`x')
-			gen double arcy_in`x'   = `midy' + radius`x'_in * sin(t`x')
+			gen double arcx_in`x'   = `midx' + radius`x'_in * cos(t) in 1/`arcpoints' 
+			gen double arcy_in`x'   = `midy' + radius`x'_in * sin(t) in 1/`arcpoints' 
 			
-			gen double arcx_out`x'  = `midx' + radius`x'_out * cos(t`x')
-			gen double arcy_out`x'  = `midy' + radius`x'_out * sin(t`x')
+			gen double arcx_out`x'  = `midx' + radius`x'_out * cos(t) in 1/`arcpoints' 
+			gen double arcy_out`x'  = `midy' + radius`x'_out * sin(t) in 1/`arcpoints' 
 			
 		}
-
+		
 		cap drop tag*
 		egen tag = tag(_y _x)
 		egen taglab = tag(ymid xmid)
 
-		sort lab layer order		
-		
-		keep _y1 _x1 _y2 _x2 ymid xmid arc* from* layer `varlist' lab2 fval* fmid*
 
-		gen id = _n  // dummy for reshape
-					
-				
-		greshape long arcx_in arcy_in arcx_out arcy_out from fval fmid, i(id _x1 _y1 _x2 _y2 xmid ymid layer `varlist' lab2) j(num)		
+		keep _y1 _x1 _y2 _x2 ymid xmid arc* from* layer `varlist' lab2 fval* fmid* seq
+		greshape long arcx_in arcy_in arcx_out arcy_out from fval fmid, i(seq _x1 _y1 _x2 _y2 xmid ymid layer `varlist' lab2) j(num)		
 
 		ren arcx_in arcx1
 		ren arcy_in arcy1
 
 		ren arcx_out arcx2
 		ren arcy_out arcy2		
+			
+		greshape long arcx arcy, i(seq _x1 _y1 _x2 _y2 num lab2 layer `varlist') j(level)	
+
+		sort num level seq
 		
-		greshape long arcx arcy, i(id _x1 _y1 _x2 _y2 num lab2 layer `varlist') j(level)	
+		
 		
 		// control variables
 		egen tag = tag(num)	
 		gen _y = 0 if tag==1		
 
-		sort level num arcx	
-		
 		
 		*** order the layers		
 				
-		sort num level arcx
-		gen order = _n if level==1
+		gen order = .		
+		sort num level seq
+		replace order = `arcpoints' + 1 - seq if level==1
+		replace order = `arcpoints'     + seq if level==2
 
-		gsort level -arcx
-		gen temp = _n if level==2
-
-		replace order = temp if level==2
-		drop temp
-
+		
 		cap drop tag2
 		egen tag2 = tag(num ymid xmid) 
 
-
 		sort num level order	
 		
-				
+			
 		*******************************			
 		*** put everything together	***
 		*******************************		
@@ -291,7 +277,7 @@ qui {
 		
 		if "`format'" 	   == "" local format %9.0fc
 		
-		gen fval2 = string(fval, "`format'") 
+		gen fval2 = string(fval, "`format'") if _y!=.
 		
 		local spikes
 
@@ -308,15 +294,20 @@ qui {
 				
 		local arcs		
 				
-		levelsof num, local(lvls)
+		
+		
+		levelsof from, local(lvls)
+		local items = `r(r)' 
+		
+		local i = 1
+		
 		foreach x of local lvls {
-			
-			summ from if num==`x', meanonly
-			local clr `r(mean)'
-			
+		
 			colorpalette `palette', n(`items') nograph
 			
-			local arcs `arcs' (area arcy arcx if num==`x', fi(100) fc( "`r(p`clr')'%`alpha'") lw(`lwidth') lc(`lcolor')) || 
+			local arcs `arcs' (area arcy arcx if from==`x', cmissing(n) fi(100) fc( "`r(p`i')'%`alpha'") lw(`lwidth') lc(`lcolor')) || 
+			
+			local i = `i' + 1
 			
 		}
 				
@@ -329,7 +320,8 @@ qui {
 				, legend(off) ///
 					ylabel(0 0.6, nogrid) xlabel(0 1, nogrid) aspect(0.6)	///
 					xscale(off) yscale(off)	`scheme' `name' `title' `subtitle' `note' `xsize' `ysize'
-		
+
+					
 }
 restore				
 		

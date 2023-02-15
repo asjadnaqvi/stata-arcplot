@@ -87,7 +87,7 @@ Let's test the `arcplot` command:
 arcplot value, from(source) to(destination) palette(tableau) alpha(55)
 ```
 
-<img src="/figures/arcplot1.png" height="600">
+<img src="/figures/arcplot1_bw.png" height="600">
 
 
 ```

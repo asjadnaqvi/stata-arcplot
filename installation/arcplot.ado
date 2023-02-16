@@ -23,8 +23,8 @@ version 15
  
 	syntax varlist(min=1 max=1 numeric) [if] [in], From(varname) To(varname) 			  									///
 		[ gap(real 0.03) ARCPoints(real 100) palette(string) LColor(string) LWidth(string) alpha(real 50) format(str)     ]  ///
-		[ VALLABGap(str) VALLABSize(string) VALLABAngle(string) VALLABColor(string)  					]  ///
-		[    LABGap(str)    LABSize(string)      LABAngle(string)    LABColor(string) LABPos(string)  ]  ///
+		[ VALLABGap(str) VALLABSize(string)   VALLABAngle(string) VALLABColor(string)   VALLABPos(string)  VALCONDition(real 0)		]  ///
+		[    LABGap(str)    LABSize(string)      LABAngle(string)    LABColor(string)      LABPos(string)  ]  ///
 		[ title(passthru) subtitle(passthru) note(passthru) scheme(passthru) name(passthru) xsize(passthru) ysize(passthru)	]  
 		
 		
@@ -274,10 +274,11 @@ qui {
 		if "`vallabcolor'" == "" local vallabcolor black
 		if "`vallabgap'"   == "" local vallabgap 2
 		if "`vallabsize'"  == "" local vallabsize 1.2
+		if "`vallabpos'"   == "" local vallabpos 12
 		
 		if "`format'" 	   == "" local format %9.0fc
 		
-		gen fval2 = string(fval, "`format'") if _y!=.
+		gen fval2 = string(fval, "`format'") if _y!=. & fval >= `valcondition'
 		
 		local spikes
 
@@ -315,8 +316,8 @@ qui {
 		twoway ///
 			`arcs' ///
 			`spikes' ///
-			(scatter ymid xmid if num==1 & tag2==1, mcolor(none) mlabsize(`labsize')    mlab(lab2)  mlabpos(`labpos') mlabangle(`labangle')    mlabgap(`labgap') ) 	                           ///
-			(scatter _y fmid                      , mcolor(none) mlabsize(`vallabsize') mlab(fval2) mlabpos(12)       mlabangle(`vallabangle') mlabgap(`vallabgap') mlabcolor(`vallabcolor') ) ///
+			(scatter ymid xmid if num==1 & tag2==1, mcolor(none) mlabsize(`labsize')    mlab(lab2)  mlabpos(`labpos')    mlabangle(`labangle')    mlabgap(`labgap') ) 	                           ///
+			(scatter _y fmid                      , mcolor(none) mlabsize(`vallabsize') mlab(fval2) mlabpos(`vallabpos') mlabangle(`vallabangle') mlabgap(`vallabgap') mlabcolor(`vallabcolor') ) ///
 				, legend(off) ///
 					ylabel(0 0.6, nogrid) xlabel(0 1, nogrid) aspect(0.6)	///
 					xscale(off) yscale(off)	`scheme' `name' `title' `subtitle' `note' `xsize' `ysize'

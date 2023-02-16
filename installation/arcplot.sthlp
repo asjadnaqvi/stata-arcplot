@@ -13,11 +13,10 @@ The command is based on the following guide on Medium: {browse "https://medium.c
 {marker syntax}{title:Syntax}
 {p 8 15 2}
 
-{cmd:arcplot} {it:variable} {ifin}, {cmdab:f:rom}({it:str var}) {cmdab:t:o}({it:str var}) 
-                {cmd:[} {cmd:gap}({it:num}) {cmdab:arcp:oints}({it:num}) {cmd:palette}({it:str}) {cmd:alpha}({it:num}) {cmd:format}({it:str})
-                  {cmdab:lc:olor}({it:str}) {cmdab:lw:idth}({it:num}) 
-                  {cmdab:labg:ap}({it:str}) {cmdab:laba:ngle}({it:str}) {cmdab:labs:ize}({it:num}) {cmdab:labc:olor}({it:str}) 
-                  {cmdab:vallabg:ap}({it:str}) {cmdab:vallaba:ngle}({it:str}) {cmdab:vallabs:ize}({it:num}) {cmdab:vallabc:olor}({it:str})
+{cmd:arcplot} {it:var} {ifin}, {cmdab:f:rom}({it:var}) {cmdab:t:o}({it:var}) 
+                {cmd:[} {cmd:gap}({it:num}) {cmdab:arcp:oints}({it:num}) {cmd:palette}({it:str}) {cmd:alpha}({it:num}) {cmd:format}({it:str}) {cmdab:lc:olor}({it:str}) {cmdab:lw:idth}({it:num}) 
+                     {cmdab:labg:ap}({it:str})    {cmdab:laba:ngle}({it:str})    {cmdab:labs:ize}({it:num})    {cmdab:labc:olor}({it:str})     {cmdab:labp:os}({it:str}) 
+                  {cmdab:vallabg:ap}({it:str}) {cmdab:vallaba:ngle}({it:str}) {cmdab:vallabs:ize}({it:num}) {cmdab:vallabc:olor}({it:str})  {cmdab:vallabp:os}({it:str}) {cmdab:valcond:ition}({it:num})
                   {cmd:xsize}({it:num}) {cmd:ysize}({it:num}) {cmd:title}({it:str}) {cmd:subtitle}({it:str}) {cmd:note}({it:str}) {cmd:scheme}({it:str}) {cmd:name}({it:str}) {cmd:]}
 
 {p 4 4 2}
@@ -27,11 +26,9 @@ The command is based on the following guide on Medium: {browse "https://medium.c
 {synopthdr}
 {synoptline}
 
-{p2coldent : {opt arcplot variable}}The command requires a numeric variable that contains the values that need to be plotted.{p_end}
+{p2coldent : {opt arcplot var}}The command requires a numeric variable that contains the values that need to be plotted.{p_end}
 
-{p2coldent : {opt f:rom(str var)}}This is the source or starting variable. This should be a string variable.{p_end}
-
-{p2coldent : {opt t:o(str var)}}This is the destination or ending variable. This should be a string variable.{p_end}
+{p2coldent : {opt f:rom(str)} {opt t:o(str)}}These are the source and destination variables.{p_end}
 
 {p2coldent : {opt gap(num)}}Gap between the horizontal bars. Default value is {it:0.03} or 3% of value total.{p_end}
 
@@ -54,6 +51,11 @@ The command is based on the following guide on Medium: {browse "https://medium.c
 
 {p2coldent : {opt labg:ap(str)}}The gap of the category labels. The default value is {it:0.5}.{p_end}
 
+{p2coldent : {opt labp:os(str)}}The position of the category labels. The default value is {opt labpos(6)}.{p_end}
+
+
+
+{p2coldent : {opt valcond:ition(num)}}The condition to label the values is >= {it:num}. The default value is {opt valcond(0)}.{p_end}
 
 {p2coldent : {opt vallabs:ize(str)}}The size of the value labels. The default value is {it:1.2}.{p_end}
 
@@ -62,6 +64,8 @@ The command is based on the following guide on Medium: {browse "https://medium.c
 {p2coldent : {opt vallaba:ngle(str)}}The angle of the value labels. The default value is {it:90} for 90 degrees.{p_end}
 
 {p2coldent : {opt vallabg:ap(str)}}The gap of the value labels from the horizontal bars. The default value is {it:2}.{p_end}
+
+{p2coldent : {opt vallabp:os(str)}}The position of the category labels. The default value is {opt vallabpos(12)}.{p_end}
 
 
 {p2coldent : {opt title}, {opt subtitle}, {opt note}}These are standard twoway graph options.{p_end}
@@ -132,6 +136,8 @@ Please submit bugs, errors, feature requests on {browse "https://github.com/asja
 
 {p 4 8 2}Caceres, M. (2022). {browse "https://gtools.readthedocs.io/en/latest/":Gtools website}.
 
+
+{title:Other visualization packages}
 
 {psee}
     {helpb alluvial}, {helpb circlebar}, {helpb spider}, {helpb treemap}, {helpb circlepack}, {helpb sankey}, {helpb treecluster}, {helpb sunburst}

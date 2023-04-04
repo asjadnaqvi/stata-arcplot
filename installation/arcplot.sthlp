@@ -1,7 +1,7 @@
 {smcl}
-{* 18November2022}{...}
+{* 16Feb2023}{...}
 {hi:help arcplot}{...}
-{right:{browse "https://github.com/asjadnaqvi/stata-arcplot":arcplot v1.1 (GitHub)}}
+{right:{browse "https://github.com/asjadnaqvi/stata-arcplot":arcplot v1.2 (GitHub)}}
 
 {hline}
 
@@ -13,11 +13,10 @@ The command is based on the following guide on Medium: {browse "https://medium.c
 {marker syntax}{title:Syntax}
 {p 8 15 2}
 
-{cmd:arcplot} {it:variable} {ifin}, {cmdab:f:rom}({it:str var}) {cmdab:t:o}({it:str var}) 
-                {cmd:[} {cmd:gap}({it:num}) {cmdab:arcp:oints}({it:num}) {cmd:palette}({it:str}) {cmd:alpha}({it:num}) {cmd:format}({it:str})
-                  {cmdab:lc:olor}({it:str}) {cmdab:lw:idth}({it:num}) 
-                  {cmdab:labg:ap}({it:str}) {cmdab:laba:ngle}({it:str}) {cmdab:labs:ize}({it:num}) {cmdab:labc:olor}({it:str}) 
-                  {cmdab:vallabg:ap}({it:str}) {cmdab:vallaba:ngle}({it:str}) {cmdab:vallabs:ize}({it:num}) {cmdab:vallabc:olor}({it:str})
+{cmd:arcplot} {it:var} {ifin}, {cmdab:f:rom}({it:var}) {cmdab:t:o}({it:var}) 
+                {cmd:[} {cmd:gap}({it:num}) {cmdab:arcp:oints}({it:num}) {cmd:palette}({it:str}) {cmd:alpha}({it:num}) {cmd:format}({it:str}) {cmdab:lc:olor}({it:str}) {cmdab:lw:idth}({it:num}) 
+                     {cmdab:labg:ap}({it:str})    {cmdab:laba:ngle}({it:str})    {cmdab:labs:ize}({it:num})    {cmdab:labc:olor}({it:str})     {cmdab:labp:os}({it:str}) 
+                  {cmdab:vallabg:ap}({it:str}) {cmdab:vallaba:ngle}({it:str}) {cmdab:vallabs:ize}({it:num}) {cmdab:vallabc:olor}({it:str})  {cmdab:vallabp:os}({it:str}) {cmdab:valcond:ition}({it:num})
                   {cmd:xsize}({it:num}) {cmd:ysize}({it:num}) {cmd:title}({it:str}) {cmd:subtitle}({it:str}) {cmd:note}({it:str}) {cmd:scheme}({it:str}) {cmd:name}({it:str}) {cmd:]}
 
 {p 4 4 2}
@@ -27,11 +26,9 @@ The command is based on the following guide on Medium: {browse "https://medium.c
 {synopthdr}
 {synoptline}
 
-{p2coldent : {opt arcplot variable}}The command requires a numeric variable that contains the values that need to be plotted.{p_end}
+{p2coldent : {opt arcplot var}}The command requires a numeric variable that contains the values that need to be plotted.{p_end}
 
-{p2coldent : {opt f:rom(str var)}}This is the source or starting variable. This should be a string variable.{p_end}
-
-{p2coldent : {opt t:o(str var)}}This is the destination or ending variable. This should be a string variable.{p_end}
+{p2coldent : {opt f:rom(str)} {opt t:o(str)}}These are the source and destination variables.{p_end}
 
 {p2coldent : {opt gap(num)}}Gap between the horizontal bars. Default value is {it:0.03} or 3% of value total.{p_end}
 
@@ -54,6 +51,11 @@ The command is based on the following guide on Medium: {browse "https://medium.c
 
 {p2coldent : {opt labg:ap(str)}}The gap of the category labels. The default value is {it:0.5}.{p_end}
 
+{p2coldent : {opt labp:os(str)}}The position of the category labels. The default value is {opt labpos(6)}.{p_end}
+
+
+
+{p2coldent : {opt valcond:ition(num)}}The condition to label the values is >= {it:num}. The default value is {opt valcond(0)}.{p_end}
 
 {p2coldent : {opt vallabs:ize(str)}}The size of the value labels. The default value is {it:1.2}.{p_end}
 
@@ -62,6 +64,8 @@ The command is based on the following guide on Medium: {browse "https://medium.c
 {p2coldent : {opt vallaba:ngle(str)}}The angle of the value labels. The default value is {it:90} for 90 degrees.{p_end}
 
 {p2coldent : {opt vallabg:ap(str)}}The gap of the value labels from the horizontal bars. The default value is {it:2}.{p_end}
+
+{p2coldent : {opt vallabp:os(str)}}The position of the category labels. The default value is {opt vallabpos(12)}.{p_end}
 
 
 {p2coldent : {opt title}, {opt subtitle}, {opt note}}These are standard twoway graph options.{p_end}
@@ -78,7 +82,7 @@ The command is based on the following guide on Medium: {browse "https://medium.c
 
 {title:Dependencies}
 
-{cmd:arcplot} requires {browse "http://repec.sowi.unibe.ch/stata/palettes/index.html":palettes} package (Jann 2018):
+{cmd:arcplot} requires {browse "http://repec.sowi.unibe.ch/stata/palettes/index.html":palettes} package (Jann 2018, 2022):
 
 {stata ssc install palettes, replace}
 {stata ssc install colrspace, replace}
@@ -100,15 +104,16 @@ Check {browse "https://github.com/asjadnaqvi/arcplot":GitHub} for examples.
 
 {title:Version history}
 
+- {bf:1.2} : Major speed improvement by flattening the code.
 - {bf:1.1} : Various bug fixes. Improvements to label controls. Gtools added for faster reshaping.
 - {bf:1.0} : First version.
 
 
 {title:Package details}
 
-Version      : {bf:arcplot} v1.1
-This release : 08 Nov 2022
-First release: 21 Aug 2021
+Version      : {bf:arcplot} v1.2
+This release : 16 Feb 2023
+First release: 22 Jun 2022
 Repository   : {browse "https://github.com/asjadnaqvi/arcplot":GitHub}
 Keywords     : Stata, graph, arc plot
 License      : {browse "https://opensource.org/licenses/MIT":MIT}
@@ -116,9 +121,6 @@ License      : {browse "https://opensource.org/licenses/MIT":MIT}
 Author       : {browse "https://github.com/asjadnaqvi":Asjad Naqvi}
 E-mail       : asjadnaqvi@gmail.com
 Twitter      : {browse "https://twitter.com/AsjadNaqvi":@AsjadNaqvi}
-
-
-{title:Acknowledgements}
 
 
 
@@ -130,4 +132,13 @@ Please submit bugs, errors, feature requests on {browse "https://github.com/asja
 
 {p 4 8 2}Jann, B. (2018). {browse "https://www.stata-journal.com/article.html?article=gr0075":Color palettes for Stata graphics}. The Stata Journal 18(4): 765-785.
 
+{p 4 8 2}Jann, B. (2022). {browse "https://ideas.repec.org/p/bss/wpaper/43.html":Color palettes for Stata graphics: an update}. University of Bern Social Sciences Working Papers No. 43. 
+
 {p 4 8 2}Caceres, M. (2022). {browse "https://gtools.readthedocs.io/en/latest/":Gtools website}.
+
+
+{title:Other visualization packages}
+
+{psee}
+    {helpb alluvial}, {helpb circlebar}, {helpb spider}, {helpb treemap}, {helpb circlepack}, {helpb sankey}, {helpb treecluster}, {helpb sunburst}
+	{helpb marimekko}, {helpb bimap}, {helpb joyplot}, {helpb streamplot}, {helpb delaunay}, {helpb clipgeo}, {helpb schemepack}

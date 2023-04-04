@@ -1,7 +1,7 @@
 
 ![StataMin](https://img.shields.io/badge/stata-2015-blue) ![issues](https://img.shields.io/github/issues/asjadnaqvi/stata-arcplot) ![license](https://img.shields.io/github/license/asjadnaqvi/stata-arcplot) ![Stars](https://img.shields.io/github/stars/asjadnaqvi/stata-arcplot) ![version](https://img.shields.io/github/v/release/asjadnaqvi/stata-arcplot) ![release](https://img.shields.io/github/release-date/asjadnaqvi/stata-arcplot)
 
-# arcplot v1.1
+# arcplot v1.2
 
 This package allows us to draw arc plots in Stata. It is based on the [Arc plot Guide](https://medium.com/the-stata-guide/stata-graphs-arc-plots-eb87015510e6) (October 2021).
 
@@ -10,13 +10,13 @@ This package allows us to draw arc plots in Stata. It is based on the [Arc plot 
 
 The package can be installed via SSC or GitHub. The GitHub version, *might* be more recent due to bug fixes, feature updates etc, and *may* contain syntax improvements and changes in *default* values. See version numbers below. Eventually the GitHub version is published on SSC.
 
-SSC (**v1.1**):
+SSC (**v1.2**):
 
 ```
 ssc install arcplot, replace
 ```
 
-GitHub (**v1.1**):
+GitHub (**v1.2**):
 
 ```
 net install arcplot, from("https://raw.githubusercontent.com/asjadnaqvi/stata-arcplot/main/installation/") replace
@@ -51,7 +51,7 @@ graph set window fontface "Arial Narrow"
 
 ## Syntax
 
-The syntax for **v1.1** is as follows:
+The syntax for **v1.2** is as follows:
 
 ```
 arcplot *num var* [if] [in], from(str var) to(str var) 
@@ -84,17 +84,23 @@ use "https://github.com/asjadnaqvi/stata-arcplot/blob/main/data/sankey_example.d
 Let's test the `arcplot` command:
 
 ```
-arcplot value, from(source) to(destination)
+arcplot value, from(source) to(destination) palette(tableau) alpha(55)
 ```
 
-<img src="/figures/arcplot1.png" height="600">
+<img src="/figures/arcplot1_bw.png" height="600">
 
 
 ```
-arcplot value, f(source) t(destination) alpha(40) format(%9.2fc) gap(0.01) vallabg(3) vallabs(1.5) lc(black) lw(0.03) palette(scico romaO)
+arcplot value, f(source) t(destination) alpha(40) format(%9.2fc) gap(0.01) vallabg(3) vallabs(1.5) lc(black) lw(0.03) palette(CET C6)
 ```
 
 <img src="/figures/arcplot2.png" height="600">
+
+```
+arcplot value, from(source) to(destination) vallabsize(1.3) lw(none) alpha(50)
+```
+
+<img src="/figures/arcplot3.png" height="600">
 
 
 ## Feedback
@@ -104,14 +110,15 @@ Please open an [issue](https://github.com/asjadnaqvi/stata-arcplot/issues) to re
 
 ## Versions
 
+**v1.2 (16 Feb 2023)**
+- Massive speed improvements by flattening the code.
 
 **v1.1 (08 Nov 2022)**
 - Several bug fixes.
 - Better label controls.
 - Gtools added for faster reshapes.
 
-
-**v1.0 (21 Aug 2022)**
+**v1.0 (22 Jun 2022)**
 - Public release.
 
 

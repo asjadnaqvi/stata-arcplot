@@ -96,20 +96,20 @@ Let's test the `arcplot` command:
 arcplot value, from(source) to(destination) palette(tableau) alpha(55)
 ```
 
-<img src="/figures/arcplot1_bw.png" height="600">
+<img src="/figures/arcplot1_bw.png" width="100%">
 
 
 ```
 arcplot value, f(source) t(destination) alpha(40) format(%9.2fc) gap(0.01) vallabg(3) vallabs(1.5) lc(black) lw(0.03) palette(CET C6)
 ```
 
-<img src="/figures/arcplot2.png" height="600">
+<img src="/figures/arcplot2.png" width="100%">
 
 ```
 arcplot value, from(source) to(destination) vallabsize(1.3) lw(none) alpha(50)
 ```
 
-<img src="/figures/arcplot3.png" height="600">
+<img src="/figures/arcplot3.png" width="100%">
 
 
 ## Feedback

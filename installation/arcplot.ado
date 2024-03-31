@@ -1,10 +1,15 @@
-*! arcplot v1.2 (16 Feb 2023)
-*! Asjad Naqvi 
+*! arcplot v1.3 (31 Mar 2024)
+*! Asjad Naqvi (asjadnaqvi@gmail.com)
 
-* v1.2 16 Feb 2023. Major speed improvements through a flat structure
-* v1.1 18 Nov 2022. Several bug fixes. Improvements to code. Gtools added.
-* v1.0 22 Jun 2022. First beta release
+* v1.3 (31 Mar 2024): See below for v1.3
+* v1.2 (16 Feb 2023): Major speed improvements through a flat structure
+* v1.1 (18 Nov 2022): Several bug fixes. Improvements to code. Gtools added.
+* v1.0 (22 Jun 2022): First beta release
 
+/* TO DO
+ Collapse option: threshold(real 0) 
+ colorprop and labprop to scale colors and labels
+*/
 
 **********************************
 * Step-by-step guide on Medium   *
@@ -22,10 +27,11 @@ program arcplot, sortpreserve
 version 15
  
 	syntax varlist(min=1 max=1 numeric) [if] [in], From(varname) To(varname) 			  									///
-		[ gap(real 0.03) ARCPoints(real 100) palette(string) LColor(string) LWidth(string) alpha(real 50) format(str)     ]  ///
-		[ VALLABGap(str) VALLABSize(string)   VALLABAngle(string) VALLABColor(string)   VALLABPos(string)  VALCONDition(real 0)		]  ///
-		[    LABGap(str)    LABSize(string)      LABAngle(string)    LABColor(string)      LABPos(string)  ]  ///
-		[ title(passthru) subtitle(passthru) note(passthru) scheme(passthru) name(passthru) xsize(passthru) ysize(passthru)	]  
+		[ gap(real 2) ARCPoints(real 100) palette(string) LColor(string) LWidth(string) alpha(real 50) format(str)     ]  ///
+		[ VALGap(str) VALSize(string) VALAngle(string) VALColor(string) VALPos(string)  VALCONDition(real 0)		]  ///
+		[ LABGap(str) LABSize(string) LABAngle(string) LABColor(string) LABPos(string)  ]  ///
+		[	sort(string) BOXWIDth(string) BOXINTensity(real 0.7) offset(real 0) aspect(real 0.5)  ]  ///   // v1.3
+ 		[ title(passthru) subtitle(passthru) note(passthru) scheme(passthru) name(passthru) xsize(passthru) ysize(passthru) saving(passthru)	]  
 		
 		
 	// check dependencies
@@ -49,8 +55,36 @@ qui {
 	
 	keep if `touse'
 	
-	gen lab1 = `from'
-	gen lab2 = `to'
+	keep `varlist' `from' `to'
+	
+	drop if `varlist' < 0
+	drop if `varlist' ==.
+	
+
+	
+	// drop unmarked entries
+	cap confirm numeric `from'
+	if _rc {
+		drop if `from'==""
+	}
+	else {
+		drop if `from'==.
+	}
+	
+	cap confirm numeric `to'
+	if _rc {
+		drop if `to'==""
+	}
+	else {
+		drop if `to'==.
+	}	
+	
+	
+	// rename for consistency
+	cap ren `from' lab1
+	cap ren `to'   lab2 
+	
+	
 	
 	collapse (sum) `varlist', by(lab1 lab2)
 	
@@ -58,40 +92,70 @@ qui {
 	
 	gen id = _n
 
+	
 	greshape long lab, i(id) j(layer)
 
-	encode lab, gen(lab2)
+	*replace lab1 = "Other" if `varlist' <= `threshold'
+	*replace lab2 = "Other" if `varlist' <= `threshold'
 	
-	sort lab layer `varlist'
-	bysort lab: gen order = _n
+	
+	if "`sort'" == "name" {
+		sort lab layer `varlist'
+		gen _sum = 1
+	}
+	if "`sort'" == "value"  | "`sort'" == "" {
+		
+		bysort lab: egen _sum = sum(`varlist')
+		 
+	}
+	
+	gsort -_sum lab layer -value
 	
 	egen tag = tag(lab)
+	gen lab2 = sum(tag)
+	labmask lab2, val(lab)
+	
+	*encode lab, gen(lab2)
+	
+	gsort lab2 layer -value
+	
+	bysort lab2: gen order = _n
+	
 
 	expand 2 if tag==1, gen(tag2)
 	replace `varlist' = 0 if tag2==1 // duplicate entries are labeled as zero
 	replace order = 0 if tag2==1
 	replace id    = 0 if tag2==1
 
-	sort lab layer order
+	*sort lab2 layer order
 	drop tag tag2
 		
+	
 	// generate cumulative values
-	sort lab layer order
-	bysort lab: gen double valsum = sum(`varlist')
+	sort lab2 layer order
+	bysort lab2: gen double valsum = sum(`varlist')
 
+	
 	gen double valsumtot = sum(`varlist')
-	sort lab layer order
+	sort lab2 layer order
+	
+	
 	
 	// add gaps between arcs
-	egen gap = group(lab)	
+	egen gap = group(lab2)	
+	
+	
 	summ valsumtot, meanonly
-	replace gap = gap * r(max) * `gap'
+	replace gap = (gap - 1) * r(max) * (`gap' / 100)
 	gen double valsumtotg = valsumtot + gap  
-
+	
+	
+	
 	gen _y = 0
 
 	sum valsumtotg, meanonly
 	gen double _x = valsumtotg / r(max)
+	
 	
 	// get the spikes
 	sort id layer _x
@@ -99,26 +163,36 @@ qui {
 	gen double _x1 = .
 	gen double _y1 = .
 
+	gen double _xsplit = .
+	gen double _ysplit = .	
+	
 	gen double _x2 = .
 	gen double _y2 = .								
 									
 	egen tag = tag(lab)								
-									
+	
+	
+		
 	levelsof lab2, local(lvls)
 
 	foreach x of local lvls {	
-		summ _x if lab2==`x'
+		summ _x if lab2==`x', meanonly
 		replace _x1 = r(min) if lab2==`x' & tag==1
 		replace _x2 = r(max) if lab2==`x' & tag==1
 
-		summ _y if lab2==`x'
-		replace _y1 = r(min) if lab2==`x' & tag==1
-		replace _y2 = r(max) if lab2==`x' & tag==1		
+		summ _x if lab2==`x' & layer==1, meanonly
+		replace _xsplit = r(max) if lab2==`x' & tag==1
 	}
 
+	
+	replace _y1 	= 0 if tag==1
+	replace _ysplit = 0 if tag==1
+	replace _y2 	= 0 if tag==1	
 
 	gen double xmid = (_x1 + _x2) / 2
 	gen double ymid = (_y1 + _y2) / 2		
+	
+	
 	
 	***************************
 	*** generate the arcs   ***
@@ -133,7 +207,7 @@ qui {
 	}
 
 
-	sort lab layer order 
+	sort lab2 layer order 
 	levelsof id if layer==1 & order!=0, local(lvls)
 
 	foreach x of local lvls {
@@ -221,7 +295,7 @@ qui {
 		egen taglab = tag(ymid xmid)
 
 
-		keep _y1 _x1 _y2 _x2 ymid xmid arc* from* layer `varlist' lab2 fval* fmid* seq
+		keep _y1 _x1 _xsplit _ysplit _y2 _x2 ymid xmid arc* from* layer `varlist' lab2 fval* fmid* seq
 		greshape long arcx_in arcy_in arcx_out arcy_out from fval fmid, i(seq _x1 _y1 _x2 _y2 xmid ymid layer `varlist' lab2) j(num)		
 
 		ren arcx_in arcx1
@@ -230,7 +304,7 @@ qui {
 		ren arcx_out arcx2
 		ren arcy_out arcy2		
 			
-		greshape long arcx arcy, i(seq _x1 _y1 _x2 _y2 num lab2 layer `varlist') j(level)	
+		greshape long arcx arcy, i(seq _x1 _y1 _xsplit _ysplit _x2 _y2 num lab2 layer `varlist') j(level)	
 
 		sort num level seq
 		
@@ -260,7 +334,14 @@ qui {
 		*******************************		
 		
 		
-		if "`palette'"     == "" local palette CET C1
+		if "`palette'" == "" {
+			local palette tableau
+		}
+		else {
+			tokenize "`palette'", p(",")
+			local palette  `1'
+			local poptions `3'
+		}
 		if "`lcolor'"      == "" local lcolor black
 		if "`lwidth'"      == "" local lwidth none
 		
@@ -270,13 +351,15 @@ qui {
 		if "`labpos'"      == "" local labpos 6
 		if "`labsize'"     == "" local labsize 2
 		
-		if "`vallabangle'" == "" local vallabangle 90
-		if "`vallabcolor'" == "" local vallabcolor black
-		if "`vallabgap'"   == "" local vallabgap 2
-		if "`vallabsize'"  == "" local vallabsize 1.2
-		if "`vallabpos'"   == "" local vallabpos 12
+		if "`valangle'" == "" local valangle 90
+		if "`valcolor'" == "" local valcolor none
+		if "`valgap'"   == "" local valgap 2
+		if "`valsize'"  == "" local valsize 1.2
+		if "`valpos'"   == "" local valpos 12
 		
-		if "`format'" 	   == "" local format %9.0fc
+		if "`boxwidth'"   == "" local boxwidth 1.6
+		
+		if "`format'" 	   == "" local format %15.0fc
 		
 		gen fval2 = string(fval, "`format'") if _y!=. & fval >= `valcondition'
 		
@@ -287,16 +370,18 @@ qui {
 
 		foreach x of local lvls {
 
-			colorpalette `palette', n(`items') nograph
+			colorpalette `palette', n(`items') nograph `poptions'
+			local spikes1 `spikes1' (pcspike _y1 _x1 _ysplit _xsplit if num==1 & lab==`x', lc( "`r(p`x')'") lwidth(`boxwidth'))
 			
-			local spikes `spikes' (pcspike _y1 _x1 _y2 _x2 if num==1 & lab==`x', lc( "`r(p`x')'") lwidth(1.5))	||
+			
+			
+			colorpalette `palette', n(`items') intensity(`boxintensity') nograph  `poptions'
+			local spikes2 `spikes2' (pcspike _ysplit _xsplit _y2 _x2 if num==1 & lab==`x', lc( "`r(p`x')'") lwidth(`boxwidth'))
 			
 		}
 				
 		local arcs		
-				
-		
-		
+
 		levelsof from, local(lvls)
 		local items = `r(r)' 
 		
@@ -304,25 +389,31 @@ qui {
 		
 		foreach x of local lvls {
 		
-			colorpalette `palette', n(`items') nograph
+			colorpalette `palette', n(`items') nograph  `poptions'
 			
 			local arcs `arcs' (area arcy arcx if from==`x', cmissing(n) fi(100) fc( "`r(p`i')'%`alpha'") lw(`lwidth') lc(`lcolor')) || 
 			
 			local i = `i' + 1
 			
 		}
-				
+			
+			
+		local ystart  = 0 - (1 * (`offset' / 100))	
+			
+		*** final graph	
 
 		twoway ///
 			`arcs' ///
-			`spikes' ///
-			(scatter ymid xmid if num==1 & tag2==1, mcolor(none) mlabsize(`labsize')    mlab(lab2)  mlabpos(`labpos')    mlabangle(`labangle')    mlabgap(`labgap') ) 	                           ///
-			(scatter _y fmid                      , mcolor(none) mlabsize(`vallabsize') mlab(fval2) mlabpos(`vallabpos') mlabangle(`vallabangle') mlabgap(`vallabgap') mlabcolor(`vallabcolor') ) ///
+			`spikes1' ///
+			`spikes2' ///
+			(scatter ymid xmid if num==1 & tag2==1, mcolor(none) mlabsize(`labsize')  mlab(lab2) mlabpos(`labpos') mlabangle(`labangle') mlabgap(`labgap') mlabcolor(`labcolor') ) ///	                           ///
+			(scatter _y fmid   if 		   tag2==1, mcolor(none) mlabsize(`valsize') mlab(fval2) mlabpos(`valpos') mlabangle(`valangle') mlabgap(`valgap') mlabcolor(`valcolor') ) ///
 				, legend(off) ///
-					ylabel(0 0.6, nogrid) xlabel(0 1, nogrid) aspect(0.6)	///
-					xscale(off) yscale(off)	`scheme' `name' `title' `subtitle' `note' `xsize' `ysize'
+					ylabel(`ystart' 0.5, nogrid) xlabel(0 1, nogrid) aspect(`aspect')	///
+					xscale(off) yscale(off)	`scheme' `name' `title' `subtitle' `note' `xsize' `ysize' `saving'
 
-					
+	*/
+		
 }
 restore				
 		

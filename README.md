@@ -9,7 +9,7 @@
 
 ---
 
-# arcplot v1.2
+# arcplot v1.3
 (16 Feb 2023)
 
 This package allows us to draw arc plots in Stata. It is based on the [Arc plot Guide](https://medium.com/the-stata-guide/stata-graphs-arc-plots-eb87015510e6) (October 2021).
@@ -25,19 +25,19 @@ SSC (**v1.2**):
 ssc install arcplot, replace
 ```
 
-GitHub (**v1.2**):
+GitHub (**v1.3**):
 
 ```
 net install arcplot, from("https://raw.githubusercontent.com/asjadnaqvi/stata-arcplot/main/installation/") replace
 ```
 
 
-
-The `palettes` package is required to run this command:
+The following packages are required to run this command:
 
 ```
 ssc install palettes, replace
 ssc install colrspace, replace
+ssc install gtools, replace
 ```
 
 Even if you have these packages installed, please check for updates: `ado update, update`.
@@ -60,14 +60,17 @@ graph set window fontface "Arial Narrow"
 
 ## Syntax
 
-The syntax for **v1.2** is as follows:
+The syntax for the latest version is as follows:
 
-```
-arcplot *num var* [if] [in], from(str var) to(str var) 
-                [ gap(num) arcpoints(num) palette(str) alpha(num) format(str) lwidth(num) lcolor(str) 
-				  labgap(str) labangle(str) labsize(str) labpos(str) labcolor(str)
-				  vallabgap(str) vallabangle(str) vallabsize(str) vallabpos(str) vallabcolor(str)
-                  xsize(num) ysize(num) title(str) subtitle(str) note(str) scheme(str) name(str) ]	
+```stata
+arcplot var [if] [in], from(var) to(var) 
+                [ gap(num) arcpoints(num) palette(str) alpha(num) format(str) lcolor(str) lwidth(num) 
+                  sort(value|name) boxwidth(str) boxintensity(num) offset(num)  
+                  labgap(str) labangle(str) labsize(num) labcolor(str) labpos(str) 
+                  valgap(str) valangle(str) valsize(num) valcolor(str) valpos(str) valcondition(num)
+                  aspect(num) xsize(num) ysize(num) title(str) subtitle(str) note(str) scheme(str) name(str) 
+                ]
+
 ```
 
 See the help file `help arcplot` for details.
@@ -75,10 +78,10 @@ See the help file `help arcplot` for details.
 The most basic use is as follows:
 
 ```
-arcplot values, from(var1) to(var2)
+arcplot var, from(var1) to(var2)
 ```
 
-where `var1` and `var2` are the string source and destination variables respectively against which the `values` are plotted. Out going values have the same color as the horizontal bar, while the incoming values have the colors of respective bars. This might still be refined but this is in line with standard arcplot packages in other softwares.
+where `var1` and `var2` are the string source and destination variables respectively against which the numerical `var` variable is plotted. Out going values have the same color as the horizontal bar, while the incoming values have the colors of respective bars. Incoming boxes have a slightly different shade.
 
 
 
@@ -87,30 +90,90 @@ where `var1` and `var2` are the string source and destination variables respecti
 Get the example data from GitHub:
 
 ```
-use "https://github.com/asjadnaqvi/stata-arcplot/blob/main/data/sankey_example.dta?raw=true", clear
+use "https://github.com/asjadnaqvi/stata-arcplot/blob/main/data/trade_2022.dta?raw=true", clear
 ```
 
 Let's test the `arcplot` command:
 
 ```
-arcplot value, from(source) to(destination) palette(tableau) alpha(55)
+arcplot value, from(ex_region) to(im_region) 
 ```
 
-<img src="/figures/arcplot1_bw.png" width="100%">
+<img src="/figures/arcplot1.png" width="100%">
 
 
 ```
-arcplot value, f(source) t(destination) alpha(40) format(%9.2fc) gap(0.01) vallabg(3) vallabs(1.5) lc(black) lw(0.03) palette(CET C6)
+arcplot value, from(ex_subregion) to(im_subregion) 
 ```
 
 <img src="/figures/arcplot2.png" width="100%">
 
 ```
-arcplot value, from(source) to(destination) vallabsize(1.3) lw(none) alpha(50)
+arcplot value, from(ex_subregion) to(im_subregion) ///
+	labangle(45) labpos(7) 
 ```
 
 <img src="/figures/arcplot3.png" width="100%">
 
+
+```
+arcplot value, from(ex_subregion) to(im_subregion) ///
+	gap(1) labsize(1.3) labangle(45) labpos(7) labgap(0.5) offset(1)
+```
+
+<img src="/figures/arcplot4.png" width="100%">
+
+```
+arcplot value, from(ex_subregion) to(im_subregion) ///
+	gap(1) labsize(1.3) labangle(45) labpos(7) labgap(0.5) offset(1)
+```
+
+<img src="/figures/arcplot5.png" width="100%">
+
+```
+arcplot value, from(ex_subregion) to(im_subregion) ///
+	gap(1) labsize(1.3) labangle(45) labpos(7) labgap(0.5) ///
+	offset(1) valcolor(black) valcond(100)	
+```
+
+<img src="/figures/arcplot6.png" width="100%">
+
+
+Let's drop the minor regions:
+
+```
+drop if inlist(ex_subregion, "Melanesia", "Micronesia", "Polynesia")
+drop if inlist(im_subregion, "Melanesia", "Micronesia", "Polynesia")
+```
+
+
+
+```
+arcplot value, from(ex_subregion) to(im_subregion) ///
+	gap(0.5) labsize(1.3) labangle(45) labpos(7) labgap(0.5) ///
+	offset(1) valcolor(black) valcond(200) palette(CET C6)		
+```
+
+<img src="/figures/arcplot7.png" width="100%">
+
+```
+arcplot value, from(ex_region) to(im_region) ///
+	gap(2) labsize(2) labangle(45) labpos(7) labgap(0.5) ///
+	offset(1) valcolor(black) valcond(200) palette(CET C6)	///
+	lc(black) lw(0.02) boxint(0.6) boxwid(2) alpha(50)
+```
+
+<img src="/figures/arcplot8.png" width="100%">
+
+```
+arcplot value, from(ex_region) to(im_region) ///
+	gap(1) labsize(2) labangle(45) labpos(7) labgap(0.5) ///
+	offset(1) valcolor(black) valcond(200) 	///
+	lc(black) lw(0.02) boxint(0.6) boxwid(2) alpha(50)	///
+	title("Value of regional trade (USD millions)") note("Source: COMTRADE-BACI", size(1.5))
+```
+
+<img src="/figures/arcplot9.png" width="100%">
 
 ## Feedback
 
@@ -118,6 +181,14 @@ Please open an [issue](https://github.com/asjadnaqvi/stata-arcplot/issues) to re
 
 
 ## Change log
+
+**v1.3 (31 Mar 2024)**
+- Options `sort()`, `boxwith()`, `boxintensity()`, `offset()`, `aspect()` added.
+- Value labels of arcs now have simplified option names.
+- `boxintensity()` allows users to control the color grading of the incoming flows part of the box.
+- X-axis `gap()` for gaps between boxes and y-axis `offset()` now take on percentage values.
+- Several defaults updates.
+- Several fixes to optmize the code and draw faster.
 
 **v1.2 (16 Feb 2023)**
 - Massive speed improvements by flattening the code.

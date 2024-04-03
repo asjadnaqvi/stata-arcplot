@@ -26,12 +26,11 @@ program arcplot, sortpreserve
 
 version 15
  
-	syntax varlist(min=1 max=1 numeric) [if] [in], From(varname) To(varname) 			  									///
-		[ gap(real 2) ARCPoints(real 100) palette(string) LColor(string) LWidth(string) alpha(real 50) format(str)     ]  ///
-		[ VALGap(str) VALSize(string) VALAngle(string) VALColor(string) VALPos(string)  VALCONDition(real 0)		]  ///
-		[ LABGap(str) LABSize(string) LABAngle(string) LABColor(string) LABPos(string)  ]  ///
-		[	sort(string) BOXWIDth(string) BOXINTensity(real 0.7) offset(real 0) aspect(real 0.5)  ]  ///   // v1.3
- 		[ *	]  
+	syntax varlist(min=1 max=1 numeric) [if] [in], From(varname) To(varname) 			  								///
+		[ gap(real 2) ARCPoints(real 100) palette(string) LColor(string) LWidth(string) alpha(real 50) format(str)  ]	///
+		[ VALGap(str) VALSize(string) VALAngle(string) VALColor(string) VALPos(string)  VALCONDition(real 0)		]  	///
+		[ LABGap(str) LABSize(string) LABAngle(string) LABColor(string) LABPos(string)  							]  	///
+		[ sort(string) BOXWIDth(string) BOXINTensity(real 0.7) offset(real 0) aspect(real 0.5) *  ]     // v1.3 
 		
 		
 	// check dependencies

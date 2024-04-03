@@ -1,4 +1,4 @@
-v 1.2
+v 1.3
 d {bf:ARCPLOT}: A Stata package for arc plots.
 d See {bf:help arcplot} after installation.
 d
@@ -9,9 +9,9 @@ d KW: graphs
 d KW: arc plot
 d
 d
-d Distribution-Date: 20230216
+d Distribution-Date: 20240331
 d
-d This  version: 16 Feb 2023
+d This  version: 31 Mar 2024
 d First version: 21 Aug 2022
 d License: MIT
 d

@@ -31,7 +31,7 @@ version 15
 		[ VALGap(str) VALSize(string) VALAngle(string) VALColor(string) VALPos(string)  VALCONDition(real 0)		]  ///
 		[ LABGap(str) LABSize(string) LABAngle(string) LABColor(string) LABPos(string)  ]  ///
 		[	sort(string) BOXWIDth(string) BOXINTensity(real 0.7) offset(real 0) aspect(real 0.5)  ]  ///   // v1.3
- 		[ title(passthru) subtitle(passthru) note(passthru) scheme(passthru) name(passthru) xsize(passthru) ysize(passthru) saving(passthru)	]  
+ 		[ *	]  
 		
 		
 	// check dependencies
@@ -410,7 +410,7 @@ qui {
 			(scatter _y fmid   if 		   tag2==1, mcolor(none) mlabsize(`valsize') mlab(fval2) mlabpos(`valpos') mlabangle(`valangle') mlabgap(`valgap') mlabcolor(`valcolor') ) ///
 				, legend(off) ///
 					ylabel(`ystart' 0.5, nogrid) xlabel(0 1, nogrid) aspect(`aspect')	///
-					xscale(off) yscale(off)	`scheme' `name' `title' `subtitle' `note' `xsize' `ysize' `saving'
+					xscale(off) yscale(off)	`options'
 
 	*/
 		

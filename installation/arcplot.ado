@@ -1,14 +1,17 @@
-*! arcplot v1.3 (31 Mar 2024)
+*! arcplot v1.4 (02 Oct 2024)
 *! Asjad Naqvi (asjadnaqvi@gmail.com)
 
+* v1.4 (02 Oct 2024): several fixes to code. added laboffset(), valoffset(), novalues, weight options
 * v1.3 (31 Mar 2024): See below for v1.3
 * v1.2 (16 Feb 2023): Major speed improvements through a flat structure
 * v1.1 (18 Nov 2022): Several bug fixes. Improvements to code. Gtools added.
 * v1.0 (22 Jun 2022): First beta release
 
 /* TO DO
- Collapse option: threshold(real 0) 
- colorprop and labprop to scale colors and labels
+ - Collapse option: threshold(real 0) 
+ - colorprop, labprop
+ - wrap()
+
 */
 
 **********************************
@@ -26,11 +29,12 @@ program arcplot, sortpreserve
 
 version 15
  
-	syntax varlist(min=1 max=1 numeric) [if] [in], From(varname) To(varname) 			  								///
-		[ gap(real 2) ARCPoints(real 100) palette(string) LColor(string) LWidth(string) alpha(real 50) format(str)  ]	///
-		[ VALGap(str) VALSize(string) VALAngle(string) VALColor(string) VALPos(string)  VALCONDition(real 0)		]  	///
-		[ LABGap(str) LABSize(string) LABAngle(string) LABColor(string) LABPos(string)  							]  	///
-		[ sort(string) BOXWIDth(string) BOXINTensity(real 0.7) offset(real 0) aspect(real 0.5) *  ]     // v1.3 
+	syntax varlist(min=1 max=1 numeric) [if] [in] [aw fw pw iw/], From(varname) To(varname) 			  		///
+		[ gap(real 1)  palette(string) LColor(string) LWidth(string) alpha(real 50) format(string)   		]	///
+		[ VALGap(str) VALSize(string) VALAngle(string) VALColor(string) VALPos(string) VALCONDition(real 0)	]  	///
+		[ LABGap(str) LABSize(string) LABAngle(string) LABColor(string) LABPos(string) 						]  	///
+		[ sort(string) BOXWIDth(string) BOXINTensity(real 0.7) offset(real 0) aspect(real 0.5) *  			]   ///  // v1.3 
+		[ LABOFFset(real 0.02) VALOFFset(real 0.01) NOVALues wrap(numlist >0 max=1) points(real 100)  ]  // v1.4
 		
 		
 	// check dependencies
@@ -46,18 +50,26 @@ version 15
 		exit
 	}
 	
+	capture findfile labsplit.ado
+		if _rc != 0 quietly ssc install graphfunctions, replace			
+	
+	if !inlist("`sort'", "", "name", "value") {
+		display as error "Valid options for {it:sort()} are {it:sort(name)} or {it:sort(value)}."
+		exit
+	}
+	
 	
 	marksample touse, strok
 	
 preserve	
-qui {
+quietly {
 	
 	keep if `touse'
 	
 	keep `varlist' `from' `to'
 	
 	drop if `varlist' < 0
-	drop if `varlist' ==.
+	drop if missing(`varlist')
 	
 
 	
@@ -84,8 +96,9 @@ qui {
 	cap ren `to'   lab2 
 	
 	
+	if "`weight'" != "" local myweight  [`weight' = `exp']
 	
-	collapse (sum) `varlist', by(lab1 lab2)
+	collapse (sum) `varlist' `myweight', by(lab1 lab2)
 	
 	sort lab2 lab1
 	
@@ -93,7 +106,8 @@ qui {
 
 	
 	greshape long lab, i(id) j(layer)
-
+	*drop id
+	
 	*replace lab1 = "Other" if `varlist' <= `threshold'
 	*replace lab2 = "Other" if `varlist' <= `threshold'
 	
@@ -108,19 +122,29 @@ qui {
 		 
 	}
 	
+	
+	
+	
 	gsort -_sum lab layer -value
 	
 	egen tag = tag(lab)
 	gen lab2 = sum(tag)
 	labmask lab2, val(lab)
 	
+	
+	
+	
 	*encode lab, gen(lab2)
 	
 	gsort lab2 layer -value
 	
-	bysort lab2: gen order = _n
-	
+	gen _id = _n  // global draw order
+	bysort lab2: gen order = _n // internal draw order
+	  
+	order _id order  
 
+	
+	
 	expand 2 if tag==1, gen(tag2)
 	replace `varlist' = 0 if tag2==1 // duplicate entries are labeled as zero
 	replace order = 0 if tag2==1
@@ -128,7 +152,8 @@ qui {
 
 	*sort lab2 layer order
 	drop tag tag2
-		
+	
+	
 	
 	// generate cumulative values
 	sort lab2 layer order
@@ -142,19 +167,18 @@ qui {
 	
 	// add gaps between arcs
 	egen gap = group(lab2)	
-	
-	
+
 	summ valsumtot, meanonly
 	replace gap = (gap - 1) * r(max) * (`gap' / 100)
 	gen double valsumtotg = valsumtot + gap  
 	
-	
-	
+
 	gen _y = 0
 
 	sum valsumtotg, meanonly
 	gen double _x = valsumtotg / r(max)
 	
+
 	
 	// get the spikes
 	sort id layer _x
@@ -171,7 +195,6 @@ qui {
 	egen tag = tag(lab)								
 	
 	
-		
 	levelsof lab2, local(lvls)
 
 	foreach x of local lvls {	
@@ -180,7 +203,14 @@ qui {
 		replace _x2 = r(max) if lab2==`x' & tag==1
 
 		summ _x if lab2==`x' & layer==1, meanonly
-		replace _xsplit = r(max) if lab2==`x' & tag==1
+		
+		if r(N) == 0 {
+			summ _x if lab2==`x' & layer==2, meanonly
+			replace _xsplit = r(min) if lab2==`x' & tag==1
+		}
+		else {
+			replace _xsplit = r(max) if lab2==`x' & tag==1
+		}
 	}
 
 	
@@ -189,7 +219,7 @@ qui {
 	replace _y2 	= 0 if tag==1	
 
 	gen double xmid = (_x1 + _x2) / 2
-	gen double ymid = (_y1 + _y2) / 2		
+	gen double ymid = ((_y1 + _y2) / 2) - `laboffset'
 	
 	
 	
@@ -198,11 +228,11 @@ qui {
 	***************************
 
 	// set obs
-	if _N < `arcpoints' {
-		set obs `=`arcpoints' + 1'	
+	if _N < `points' {
+		set obs `=`points' + 1'	
 	}
 	else {
-		local arcpoints  = `=_N - 1'
+		local points  = `=_N - 1'
 	}
 
 
@@ -239,6 +269,7 @@ qui {
 		summ boxx`x' if layer==1, meanonly
 		gen double fmid`x' = r(mean)
 		
+		
 		// layer 2
 		summ lab2  if id==`x' & layer==2, meanonly
 		local labcat2 = r(mean)
@@ -254,11 +285,10 @@ qui {
 	}
 
 		gen seq = _n
-		local increment = _pi / `=`arcpoints' - 1'
-		gen double t = `increment' * (seq - 1) in 1/`arcpoints'  // keep last observation free
+		local increment = _pi / `=`points' - 1'
+		gen double t = `increment' * (seq - 1) in 1/`points'  // keep last observation free
 		
-		
-		
+
 		levelsof id if layer==1 & order!=0, local(lvls)
 
 		foreach x of local lvls { 
@@ -277,17 +307,17 @@ qui {
 			local midx = (`xout1' + `xout2')/2  
 			local midy = 0 	
 
-			
-			gen double radius`x'_in  = sqrt((`xin1'  - `midx')^2 + (0 - `midy')^2)  in 1/`arcpoints'  
-			gen double radius`x'_out = sqrt((`xout1' - `midx')^2 + (0 - `midy')^2)  in 1/`arcpoints'   
+			gen double radius`x'_in  = sqrt((`xin1'  - `midx')^2 + (0 - `midy')^2)  in 1/`points'  
+			gen double radius`x'_out = sqrt((`xout1' - `midx')^2 + (0 - `midy')^2)  in 1/`points'   
 
-			gen double arcx_in`x'   = `midx' + radius`x'_in * cos(t) in 1/`arcpoints' 
-			gen double arcy_in`x'   = `midy' + radius`x'_in * sin(t) in 1/`arcpoints' 
+			gen double arcx_in`x'   = `midx' + radius`x'_in * cos(t) in 1/`points' 
+			gen double arcy_in`x'   = `midy' + radius`x'_in * sin(t) in 1/`points' 
 			
-			gen double arcx_out`x'  = `midx' + radius`x'_out * cos(t) in 1/`arcpoints' 
-			gen double arcy_out`x'  = `midy' + radius`x'_out * sin(t) in 1/`arcpoints' 
+			gen double arcx_out`x'  = `midx' + radius`x'_out * cos(t) in 1/`points' 
+			gen double arcy_out`x'  = `midy' + radius`x'_out * sin(t) in 1/`points' 
 			
 		}
+		
 		
 		cap drop tag*
 		egen tag = tag(_y _x)
@@ -318,8 +348,8 @@ qui {
 				
 		gen order = .		
 		sort num level seq
-		replace order = `arcpoints' + 1 - seq if level==1
-		replace order = `arcpoints'     + seq if level==2
+		replace order = `points' + 1 - seq if level==1
+		replace order = `points'     + seq if level==2
 
 		
 		cap drop tag2
@@ -345,22 +375,23 @@ qui {
 		if "`lwidth'"      == "" local lwidth none
 		
 		if "`labcolor'"    == "" local labcolor black
-		if "`labangle'"    == "" local labangle 0
-		if "`labgap'"      == "" local labgap 0.5
-		if "`labpos'"      == "" local labpos 6
+		if "`labangle'"    == "" local labangle 90
+		if "`labgap'"      == "" local labgap 0
+		if "`labpos'"      == "" local labpos 9
 		if "`labsize'"     == "" local labsize 2
 		
 		if "`valangle'" == "" local valangle 90
-		if "`valcolor'" == "" local valcolor none
-		if "`valgap'"   == "" local valgap 2
+		if "`valcolor'" == "" local valcolor black
+		if "`valgap'"   == "" local valgap 0
 		if "`valsize'"  == "" local valsize 1.2
 		if "`valpos'"   == "" local valpos 12
 		
 		if "`boxwidth'"   == "" local boxwidth 1.6
 		
-		if "`format'" 	   == "" local format %15.0fc
+		if "`format'" 	   == "" local format %7.2f
 		
 		gen fval2 = string(fval, "`format'") if _y!=. & fval >= `valcondition'
+		gen double ylab = _y + `laboffset' if tag2==1
 		
 		local spikes
 
@@ -372,8 +403,6 @@ qui {
 			colorpalette `palette', n(`items') nograph `poptions'
 			local spikes1 `spikes1' (pcspike _y1 _x1 _ysplit _xsplit if num==1 & lab==`x', lc( "`r(p`x')'") lwidth(`boxwidth'))
 			
-			
-			
 			colorpalette `palette', n(`items') intensity(`boxintensity') nograph  `poptions'
 			local spikes2 `spikes2' (pcspike _ysplit _xsplit _y2 _x2 if num==1 & lab==`x', lc( "`r(p`x')'") lwidth(`boxwidth'))
 			
@@ -381,7 +410,7 @@ qui {
 				
 		local arcs		
 
-		levelsof from, local(lvls)
+		levelsof lab, local(lvls)
 		local items = `r(r)' 
 		
 		local i = 1
@@ -398,6 +427,24 @@ qui {
 			
 			
 		local ystart  = 0 - (1 * (`offset' / 100))	
+		
+		if "`novalues'" != "" {
+			local values
+		}
+		else {
+			local values (scatter ylab fmid if 		   tag2==1, mcolor(none) mlabsize(`valsize') mlab(fval2) mlabpos(`valpos') mlabangle(`valangle') mlabgap(`valgap') mlabcolor(`valcolor') )
+		}
+		
+		
+		
+		local labval lab2
+		
+		/*  // need to add checks for lab2 being num, num+lab, or string
+		if "`wrap'" != "" {
+			labsplit lab2, wrap(`wrap') gen(_lab2)
+			local labval _lab2
+		}
+		*/
 			
 		*** final graph	
 
@@ -405,8 +452,8 @@ qui {
 			`arcs' ///
 			`spikes1' ///
 			`spikes2' ///
-			(scatter ymid xmid if num==1 & tag2==1, mcolor(none) mlabsize(`labsize')  mlab(lab2) mlabpos(`labpos') mlabangle(`labangle') mlabgap(`labgap') mlabcolor(`labcolor') ) ///	                           ///
-			(scatter _y fmid   if 		   tag2==1, mcolor(none) mlabsize(`valsize') mlab(fval2) mlabpos(`valpos') mlabangle(`valangle') mlabgap(`valgap') mlabcolor(`valcolor') ) ///
+			(scatter ymid xmid if num==1 & tag2==1, mcolor(none) mlabsize(`labsize')  mlab(`labval') mlabpos(`labpos') mlabangle(`labangle') mlabgap(`labgap') mlabcolor(`labcolor') ) ///	                           ///
+			`values' ///
 				, legend(off) ///
 					ylabel(`ystart' 0.5, nogrid) xlabel(0 1, nogrid) aspect(`aspect')	///
 					xscale(off) yscale(off)	`options'

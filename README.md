@@ -1,15 +1,14 @@
 
-![arcplot_banner](https://github.com/asjadnaqvi/stata-arcplot/assets/38498046/99e179c8-9ff0-4d7f-b0c4-92df813ff4cb)
-
 ![StataMin](https://img.shields.io/badge/stata-2015-blue) ![issues](https://img.shields.io/github/issues/asjadnaqvi/stata-arcplot) ![license](https://img.shields.io/github/license/asjadnaqvi/stata-arcplot) ![Stars](https://img.shields.io/github/stars/asjadnaqvi/stata-arcplot) ![version](https://img.shields.io/github/v/release/asjadnaqvi/stata-arcplot) ![release](https://img.shields.io/github/release-date/asjadnaqvi/stata-arcplot)
-
----
 
 [Installation](#Installation) | [Syntax](#Syntax) | [Examples](#Examples) | [Feedback](#Feedback) | [Change log](#Change-log)
 
 ---
 
-# arcplot v1.3
+![arcplot_banner](https://github.com/asjadnaqvi/stata-arcplot/assets/38498046/99e179c8-9ff0-4d7f-b0c4-92df813ff4cb)
+
+
+# arcplot v1.4
 (31 Mar 2024)
 
 This package allows us to draw arc plots in Stata. It is based on the [Arc plot Guide](https://medium.com/the-stata-guide/stata-graphs-arc-plots-eb87015510e6) (October 2021).
@@ -25,7 +24,7 @@ SSC (**v1.3**):
 ssc install arcplot, replace
 ```
 
-GitHub (**v1.3**):
+GitHub (**v1.4**):
 
 ```
 net install arcplot, from("https://raw.githubusercontent.com/asjadnaqvi/stata-arcplot/main/installation/") replace
@@ -63,14 +62,11 @@ graph set window fontface "Arial Narrow"
 The syntax for the latest version is as follows:
 
 ```stata
-arcplot var [if] [in], from(var) to(var) 
+arcplot numvar [if] [in] [weight], from(var) to(var) 
                 [ gap(num) arcpoints(num) palette(str) alpha(num) format(str) lcolor(str) lwidth(num) 
-                  sort(value|name) boxwidth(str) boxintensity(num) offset(num)  
-                  labgap(str) labangle(str) labsize(num) labcolor(str) labpos(str) 
-                  valgap(str) valangle(str) valsize(num) valcolor(str) valpos(str) valcondition(num)
-                  aspect(num) xsize(num) ysize(num) title(str) subtitle(str) note(str) scheme(str) name(str) 
-                ]
-
+                  sort(value|name) boxwidth(str) boxintensity(num) offset(num)  valcondition(num) novalues 
+                  labsize(num) labcolor(str) labangle(str) labpos(str) laboffset(num) labgap(str) 
+                  valsize(num) valcolor(str) valangle(str) valpos(str) valoffset(num) valgap(str) * ]
 ```
 
 See the help file `help arcplot` for details.
@@ -110,7 +106,7 @@ arcplot value, from(ex_subregion) to(im_subregion)
 
 ```
 arcplot value, from(ex_subregion) to(im_subregion) ///
-	labangle(45) labpos(7) 
+	labangle(45) labgap(0.1)
 ```
 
 <img src="/figures/arcplot3.png" width="100%">
@@ -118,28 +114,34 @@ arcplot value, from(ex_subregion) to(im_subregion) ///
 
 ```
 arcplot value, from(ex_subregion) to(im_subregion) ///
-	gap(1) labsize(1.3) labangle(45) labpos(7) labgap(0.5) offset(1)
+	labsize(1.3) labangle(45) labgap(0.1) offset(1)
 ```
 
 <img src="/figures/arcplot4.png" width="100%">
 
 ```
 arcplot value, from(ex_subregion) to(im_subregion) ///
-	gap(1) labsize(1.3) labangle(45) labpos(7) labgap(0.5) offset(1)
+	gap(2) labsize(1.3) labangle(45) labgap(0.1) offset(1)
 ```
 
 <img src="/figures/arcplot5.png" width="100%">
 
 ```
 arcplot value, from(ex_subregion) to(im_subregion) ///
-	gap(1) labsize(1.3) labangle(45) labpos(7) labgap(0.5) ///
-	offset(1) valcolor(black) valcond(100)	
+	gap(2) labsize(1.3) labangle(45) labgap(0.1) offset(1) offset(1) noval
 ```
 
 <img src="/figures/arcplot6.png" width="100%">
 
+```
+arcplot value, from(ex_subregion) to(im_subregion) ///
+	gap(2) labsize(1.3) labpos(7) laboffset(0.1) offset(1) noval sort(name)
+```
 
-Let's drop the minor regions:
+<img src="/figures/arcplot6_1.png" width="100%">
+
+
+Let's drop the minor regions (with apologies to people from these islands):
 
 ```
 drop if inlist(ex_subregion, "Melanesia", "Micronesia", "Polynesia")
@@ -147,30 +149,35 @@ drop if inlist(im_subregion, "Melanesia", "Micronesia", "Polynesia")
 ```
 
 
-
 ```
 arcplot value, from(ex_subregion) to(im_subregion) ///
-	gap(0.5) labsize(1.3) labangle(45) labpos(7) labgap(0.5) ///
-	offset(1) valcolor(black) valcond(200) palette(CET C6)		
+	gap(0.5) labsize(1.3) labangle(40) laboffset(0.01) valoffset(0.3) ///
+	offset(1) valcond(200) palette(CET C6) format(%10.0fc)		
 ```
 
 <img src="/figures/arcplot7.png" width="100%">
 
 ```
 arcplot value, from(ex_region) to(im_region) ///
-	gap(2) labsize(2) labangle(45) labpos(7) labgap(0.5) ///
-	offset(1) valcolor(black) valcond(200) palette(CET C6)	///
-	lc(black) lw(0.02) boxint(0.6) boxwid(2) alpha(50)
+	gap(2) labsize(2) labangle(45) ///
+	offset(1) valcond(200) palette(CET C6) format(%10.0fc)		///
+	lc(black) lw(0.02) boxint(0.4) boxwid(2) alpha(50)
 ```
 
 <img src="/figures/arcplot8.png" width="100%">
 
+
+Below a code for a high fine-tuned figure. Note the use of `plotregion()` that supercedes `gap()` used in the code above. It is high effective to use this code to remove white spaces:
+
 ```
 arcplot value, from(ex_region) to(im_region) ///
-	gap(1) labsize(2) labangle(45) labpos(7) labgap(0.5) ///
-	offset(1) valcolor(black) valcond(200) 	///
+	gap(1) labsize(3) labangle(45) valoffset(0.1) palette(538) ///
+	valcolor(black) valcond(1000) valsize(2.4) format(%10.0fc)	///
 	lc(black) lw(0.02) boxint(0.6) boxwid(2) alpha(50)	///
-	title("Value of regional trade (USD millions)") note("Source: COMTRADE-BACI", size(1.5))
+	title("Regional trade in 2022 (USD millions)", size(6)) ///
+	note("Source: COMTRADE-BACI", size(2) span) ///
+	plotregion(margin(t-15 b+3 l-20 r-20)) xsize(2) ysize(1)
+	
 ```
 
 <img src="/figures/arcplot9.png" width="100%">
@@ -181,6 +188,14 @@ Please open an [issue](https://github.com/asjadnaqvi/stata-arcplot/issues) to re
 
 
 ## Change log
+
+**v1.4 (02 Oct 2024)**
+- Fixed a bug where incoming layer was not being drawn if it was not in the outgoing layer (reported by Jesus Ortero).
+- Fixed a bug resulting in correct color assignments under certain conditions.
+- Fixed a bug where value labels were hidden by default.
+- Weights are not allowed. Ideally pre-prepare the data in advance before using the command.
+- Added `valoffset()`, `laboffset()`, and `novalues` options.
+- More error checks, better defaults, and some code clean up should result in faster and neater outputs.
 
 **v1.3 (31 Mar 2024)**
 - Options `sort()`, `boxwith()`, `boxintensity()`, `offset()`, `aspect()` added.

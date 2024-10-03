@@ -190,8 +190,8 @@ Please open an [issue](https://github.com/asjadnaqvi/stata-arcplot/issues) to re
 ## Change log
 
 **v1.4 (02 Oct 2024)**
-- Fixed a bug where incoming layer was not being drawn if it was not in the outgoing layer (reported by Jesus Ortero).
-- Fixed a bug resulting in correct color assignments under certain conditions.
+- Fixed a bug where incoming layer was not being drawn if it was not in the outgoing layer (reported by Jesus Otero).
+- Fixed a bug resulting in correct color assignments under certain conditions (reported by Jesus Otero).
 - Fixed a bug where value labels were hidden by default.
 - Weights are not allowed. Ideally pre-prepare the data in advance before using the command.
 - Added `valoffset()`, `laboffset()`, and `novalues` options.

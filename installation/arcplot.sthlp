@@ -129,7 +129,7 @@ Please submit bugs, errors, feature requests on {browse "https://github.com/asja
 
 {title:Citation guidelines}
 
-Suggested citation guidlines for this package:
+Suggested citation for this package:
 
 Naqvi, A. (2024). Stata package "arcplot" version 1.4. Release date 02 October 2024. https://github.com/asjadnaqvi/stata-arcplot.
 

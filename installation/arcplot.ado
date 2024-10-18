@@ -117,53 +117,40 @@ quietly {
 		gen _sum = 1
 	}
 	if "`sort'" == "value"  | "`sort'" == "" {
-		
 		bysort lab: egen _sum = sum(`varlist')
-		 
 	}
 	
+
 	
-	
-	
-	gsort -_sum lab layer -value
+	gsort -_sum lab layer -`varlist'
 	
 	egen tag = tag(lab)
 	gen lab2 = sum(tag)
 	labmask lab2, val(lab)
 	
-	
-	
-	
-	*encode lab, gen(lab2)
-	
-	gsort lab2 layer -value
+
+	gsort lab2 layer -`varlist'
 	
 	gen _id = _n  // global draw order
 	bysort lab2: gen order = _n // internal draw order
 	  
 	order _id order  
 
-	
-	
 	expand 2 if tag==1, gen(tag2)
+	
 	replace `varlist' = 0 if tag2==1 // duplicate entries are labeled as zero
 	replace order = 0 if tag2==1
 	replace id    = 0 if tag2==1
 
-	*sort lab2 layer order
 	drop tag tag2
-	
 	
 	
 	// generate cumulative values
 	sort lab2 layer order
 	bysort lab2: gen double valsum = sum(`varlist')
 
-	
 	gen double valsumtot = sum(`varlist')
 	sort lab2 layer order
-	
-	
 	
 	// add gaps between arcs
 	egen gap = group(lab2)	
@@ -177,7 +164,6 @@ quietly {
 
 	sum valsumtotg, meanonly
 	gen double _x = valsumtotg / r(max)
-	
 
 	
 	// get the spikes
@@ -220,7 +206,6 @@ quietly {
 
 	gen double xmid = (_x1 + _x2) / 2
 	gen double ymid = ((_y1 + _y2) / 2) - `laboffset'
-	
 	
 	
 	***************************
@@ -419,7 +404,7 @@ quietly {
 		
 			colorpalette `palette', n(`items') nograph  `poptions'
 			
-			local arcs `arcs' (area arcy arcx if from==`x', cmissing(n) fi(100) fc( "`r(p`i')'%`alpha'") lw(`lwidth') lc(`lcolor')) || 
+			local arcs `arcs' (area arcy arcx if from==`x', cmissing(n) fi(100) fc( "`r(p`i')'%`alpha'") lw(`lwidth') lc(`lcolor')) 
 			
 			local i = `i' + 1
 			
@@ -452,7 +437,7 @@ quietly {
 			`arcs' ///
 			`spikes1' ///
 			`spikes2' ///
-			(scatter ymid xmid if num==1 & tag2==1, mcolor(none) mlabsize(`labsize')  mlab(`labval') mlabpos(`labpos') mlabangle(`labangle') mlabgap(`labgap') mlabcolor(`labcolor') ) ///	                           ///
+			(scatter ymid xmid if num==1 & tag2==1, mcolor(none) mlabsize(`labsize')  mlab(`labval') mlabpos(`labpos') mlabangle(`labangle') mlabgap(`labgap') mlabcolor(`labcolor') ) ///	 
 			`values' ///
 				, legend(off) ///
 					ylabel(`ystart' 0.5, nogrid) xlabel(0 1, nogrid) aspect(`aspect')	///

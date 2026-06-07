@@ -8,8 +8,8 @@
 ![arcplot_banner](https://github.com/asjadnaqvi/stata-arcplot/assets/38498046/99e179c8-9ff0-4d7f-b0c4-92df813ff4cb)
 
 
-# arcplot v1.4
-(02 Oct 2024)
+# arcplot v1.5
+(07 Jun 2026)
 
 This package allows us to draw arc plots in Stata. It is based on the [Arc plot Guide](https://medium.com/the-stata-guide/stata-graphs-arc-plots-eb87015510e6) (October 2021).
 
@@ -18,13 +18,13 @@ This package allows us to draw arc plots in Stata. It is based on the [Arc plot 
 
 The package can be installed via SSC or GitHub. The GitHub version, *might* be more recent due to bug fixes, feature updates etc, and *may* contain syntax improvements and changes in *default* values. See version numbers below. Eventually the GitHub version is published on SSC.
 
-SSC (**v1.4**):
+SSC (**v1.5**):
 
 ```stata
 ssc install arcplot, replace
 ```
 
-GitHub (**v1.4**):
+GitHub (**v1.5**):
 
 ```stata
 net install arcplot, from("https://raw.githubusercontent.com/asjadnaqvi/stata-arcplot/main/installation/") replace
@@ -64,10 +64,12 @@ The syntax for the latest version is as follows:
 
 ```stata
 arcplot numvar [if] [in] [weight], from(var) to(var) 
-                [ gap(num) arcpoints(num) palette(str) alpha(num) format(str) lcolor(str) lwidth(num) 
-                  sort(value|name) boxwidth(str) boxintensity(num) offset(num)  valcondition(num) novalues 
-                  labsize(num) labcolor(str) labangle(str) labpos(str) laboffset(num) labgap(str) 
-                  valsize(num) valcolor(str) valangle(str) valpos(str) valoffset(num) valgap(str) * ]
+								[ gap(num) points(num) palette(str) alpha(num) format(str) lcolor(str) lwidth(num) 
+									sort(value|name) split(varname) splitshift(num) boxwidth(str) boxintensity(num) 
+									colorprop cuts(num) propcolor(str) offset(num) aspect(num) xsize(num) ysize(num)
+									valcondition(num) novalues options(str)
+									labsize(num) labcolor(str) labangle(str) labpos(str) laboffset(num) labgap(str) 
+									valsize(num) valcolor(str) valangle(str) valpos(str) valoffset(num) valgap(str) * ]
 ```
 
 See the help file `help arcplot` for details.
@@ -129,14 +131,14 @@ arcplot value, from(ex_subregion) to(im_subregion) ///
 
 ```stata
 arcplot value, from(ex_subregion) to(im_subregion) ///
-	gap(2) labsize(1.3) labangle(45) labgap(0.1) offset(1) offset(1) noval
+	gap(2) labsize(1.3) labangle(45) labgap(0.1) offset(1) noval
 ```
 
 <img src="/figures/arcplot6.png" width="100%">
 
 ```stata
 arcplot value, from(ex_subregion) to(im_subregion) ///
-	gap(2) labsize(1.3) labpos(7) laboffset(0.1) offset(1) noval sort(name)
+	gap(2) labsize(1.3) labpos(7) offset(1) noval sort(name)
 ```
 
 <img src="/figures/arcplot6_1.png" width="100%">
@@ -177,10 +179,44 @@ arcplot value, from(ex_region) to(im_region) ///
 	lc(black) lw(0.02) boxint(0.6) boxwid(2) alpha(50)	///
 	title("Regional trade in 2022 (USD millions)", size(6)) ///
 	note("Source: COMTRADE-BACI", size(2) span) ///
-	plotregion(margin(t-15 b+3 l-20 r-20)) xsize(2) ysize(1)
+	plotregion(margin(t-15 b+3 l-20 r-20))
 ```
 
 <img src="/figures/arcplot9.png" width="100%">
+
+
+### Split option examples
+
+```stata
+collapse (sum) value, by(ex_region im_region)
+
+gen split_dev = inlist(ex_region, "Europe", "Northern America", "Oceania")
+gen split_europe = ex_region == "Europe"
+```
+
+```stata
+arcplot value, from(ex_region) to(im_region) ///
+	split(split_dev) sort(value) noval
+```
+
+<img src="/figures/arcplot10.png" width="100%">
+
+```stata
+arcplot value, from(ex_region) to(im_region) ///
+	split(split_dev) sort(value) noval ///
+	aspect(0.9) xsize(1) ysize(1)
+```
+
+<img src="/figures/arcplot11.png" width="100%">
+
+```stata
+arcplot value, from(ex_region) to(im_region) ///
+	split(split_europe) sort(value) noval ///
+	aspect(0.9) xsize(4) ysize(3) boxwidth(3) ///
+	plotregion(margin(t-30 l-30 r-30))
+```
+
+<img src="/figures/arcplot12.png" width="100%">
 
 ## Feedback
 
@@ -189,11 +225,15 @@ Please open an [issue](https://github.com/asjadnaqvi/stata-arcplot/issues) to re
 
 ## Change log
 
+**v1.5 (07 Jun 2026)**
+- New options added: `splitshift()`, `colorprop`, `cuts()`, `propcolor()`, `aspect()`, `xsize()`, and `ysize()`.
+- Several code optimizations.
+
 **v1.4 (02 Oct 2024)**
 - Fixed a bug where incoming layer was not being drawn if it was not in the outgoing layer (reported by Jesus Otero).
 - Fixed a bug resulting in correct color assignments under certain conditions (reported by Jesus Otero).
 - Fixed a bug where value labels were hidden by default.
-- Weights are not allowed. Ideally pre-prepare the data in advance before using the command.
+- Weights are allowed.
 - Added `valoffset()`, `laboffset()`, and `novalues` options.
 - More error checks, better defaults, and some code clean up should result in faster and neater outputs.
 

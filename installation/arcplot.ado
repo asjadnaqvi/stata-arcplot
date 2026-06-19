@@ -543,14 +543,14 @@ quietly {
 		local _aspect_use = `_aspect_standard'
 
 		if "`split'" == "" {
-			if "`aspect'" == "" local _aspect_use = 0.5
-			*if "`xsize'"  == "" local xsize = 2
-			*if "`ysize'"  == "" local ysize = 1
+			if "`aspect'" == "" local _aspect_use = 0.4
+			if "`xsize'"  == "" local xsize = 2
+			if "`ysize'"  == "" local ysize = 1
 		}
 		else {
-			if "`aspect'" == "" local _aspect_use = 1
-			*if "`xsize'"  == "" local xsize = 1
-			*if "`ysize'"  == "" local ysize = 1
+			if "`aspect'" == "" local _aspect_use = 0.75
+			if "`xsize'"  == "" local xsize = 4
+			if "`ysize'"  == "" local ysize = 3
 		}	
 		
 

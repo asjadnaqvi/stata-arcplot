@@ -188,32 +188,40 @@ arcplot value, from(ex_region) to(im_region) ///
 ### Split option examples
 
 ```stata
-collapse (sum) value, by(ex_region im_region)
-
-gen split_dev = inlist(ex_region, "Europe", "Northern America", "Oceania")
 gen split_europe = ex_region == "Europe"
 ```
 
+Baseline graph without split:
+
 ```stata
 arcplot value, from(ex_region) to(im_region) ///
-	split(split_dev) sort(value) noval
+    sort(value) valcond(1000) aspect(0.46) ///
+	gap(1) labsize(3) labangle(45) valsize(2.4) format(%10.0fc)	laboffset(0.02) ///
+	plotregion(margin(b+5)) ///
+	title("Regional trade in 2022 (USD millions)", size(6)) ///
+	note("Source: COMTRADE-BACI", size(2) span) 
 ```
 
 <img src="/figures/arcplot10.png" width="100%">
 
 ```stata
 arcplot value, from(ex_region) to(im_region) ///
-	split(split_dev) sort(value) noval ///
+    split(split_europe) sort(value)   ///
 	aspect(0.9) xsize(1) ysize(1)
 ```
 
 <img src="/figures/arcplot11.png" width="100%">
 
+A formatted split graph:
+
 ```stata
-arcplot value, from(ex_region) to(im_region) ///
-	split(split_europe) sort(value) noval ///
-	aspect(0.9) xsize(4) ysize(3) boxwidth(3) ///
-	plotregion(margin(t-30 l-30 r-30))
+arcplot value, from(ex_region) to(im_region) split(split_europe) ///
+    sort(value) valcond(1000)  ///
+	gap(1) labsize(2) labangle(45) valsize(1.6) format(%10.0fc)	laboffset(0.02) ///
+	valoffset(0.04) ///
+	aspect(0.9) xsize(3) ysize(3)	///
+	title("Regional trade in 2022 (USD millions)", size(6)) ///
+	note("Source: COMTRADE-BACI", size(2) span) 
 ```
 
 <img src="/figures/arcplot12.png" width="100%">

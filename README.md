@@ -154,7 +154,7 @@ drop if inlist(im_subregion, "Melanesia", "Micronesia", "Polynesia")
 
 ```stata
 arcplot value, from(ex_subregion) to(im_subregion) ///
-	gap(0.5) labsize(1.3) labangle(40) laboffset(0.01) valoffset(0.3) ///
+	gap(0.5) labsize(1.3) labangle(40) laboffset(0.01)  ///
 	offset(1) valcond(200) palette(CET C6) format(%10.0fc)		
 ```
 
@@ -174,7 +174,7 @@ Below a code for a highly fine-tuned figure. Note the use of the generic `plotre
 
 ```stata
 arcplot value, from(ex_region) to(im_region) ///
-	gap(1) labsize(3) labangle(45) valoffset(0.1) palette(538) ///
+	gap(1) labsize(3) labangle(45) palette(538) ///
 	valcolor(black) valcond(1000) valsize(2.4) format(%10.0fc)	///
 	lc(black) lw(0.02) boxint(0.6) boxwid(2) alpha(50)	///
 	title("Regional trade in 2022 (USD millions)", size(6)) ///

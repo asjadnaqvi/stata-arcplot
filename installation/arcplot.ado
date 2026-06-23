@@ -1,12 +1,12 @@
 *! arcplot v1.5 (07 Jun 2026)
 *! Asjad Naqvi (asjadnaqvi@gmail.com)
 
-* v1.5 (07 Jun 2026): New options added: split(), splitshift(), colorprop, aspect(), xsize(), and ysize()
-* v1.4 (02 Oct 2024): several fixes to code. added laboffset(), valoffset(), novalues, weight options
-* v1.3 (31 Mar 2024): See below for v1.3
-* v1.2 (16 Feb 2023): Major speed improvements through a flat structure
-* v1.1 (18 Nov 2022): Several bug fixes. Improvements to code. Gtools added.
-* v1.0 (22 Jun 2022): First beta release
+* v1.5  (07 Jun 2026): New options added: split(), splitshift(), colorprop, aspect(), xsize(), and ysize()
+* v1.4  (02 Oct 2024): several fixes to code. added laboffset(), valoffset(), novalues, weight options
+* v1.3  (31 Mar 2024): See below for v1.3
+* v1.2  (16 Feb 2023): Major speed improvements through a flat structure
+* v1.1  (18 Nov 2022): Several bug fixes. Improvements to code. Gtools added.
+* v1.0  (22 Jun 2022): First beta release
 
 
 **********************************
@@ -25,9 +25,9 @@ version 15
  
 	syntax varlist(min=1 max=1 numeric) [if] [in] [aw fw pw iw/], From(varname) To(varname) 			  		///
 		[ gap(real 1)  palette(string) LColor(string) LWidth(string) alpha(real 50) format(string)   		]	///
-		[ VALGap(str) VALSize(string) VALAngle(string) VALColor(string) VALPos(string) VALCONDition(real 0)	]  	///
-		[ LABGap(str) LABSize(string) LABAngle(string) LABColor(string) LABPos(string) 						]  	///
-		[ sort(string) BOXWIDth(string) BOXINTensity(real 0.7) offset(real 0) 		]   ///  // v1.3
+		[ VALGap(numlist max=1) VALSize(string) VALAngle(numlist max=1) VALColor(string) VALPos(string) VALCONDition(real 0)	]  	///
+		[ LABGap(numlist max=1) LABSize(string) LABAngle(numlist max=1) LABColor(string) LABPos(string) 						]  	///
+		[ sort(string) BOXWIDth(numlist max=1) BOXINTensity(real 0.7) offset(real 0) 		]   ///  // v1.3
 		[ LABOFFset(real 0.02) VALOFFset(real 0.02) NOVALues wrap(numlist >0 max=1) points(real 100)  ] 	/// // v1.4
 		[ colorprop cuts(real 10) PROPColor(string) ] 														/// // v1.4
 		[ options(string) ] 																				/// // v1.4
@@ -223,10 +223,10 @@ quietly {
 
 	gen double xmid = (_x1 + _x2) / 2
 	if "`split'" == "" {
-		gen double ymid = ((_y1 + _y2) / 2) - `laboffset'
+		gen double ymid = ((_y1 + _y2) / 2) + `laboffset'
 	}
 	else {
-		gen double ymid = 0 - `laboffset'
+		gen double ymid = 0 + `laboffset'
 	}
 	
 	

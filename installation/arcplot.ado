@@ -28,7 +28,7 @@ version 15
 		[ VALGap(numlist max=1) VALSize(string) VALAngle(numlist max=1) VALColor(string) VALPos(string) VALCONDition(real 0)	]  	///
 		[ LABGap(numlist max=1) LABSize(string) LABAngle(numlist max=1) LABColor(string) LABPos(string) 						]  	///
 		[ sort(string) BOXWIDth(numlist max=1) BOXINTensity(real 0.7) offset(real 0) 		]   ///  // v1.3
-		[ LABOFFset(real 0.02) VALOFFset(real 0.02) NOVALues wrap(numlist >0 max=1) points(real 100)  ] 	/// // v1.4
+		[ LABOFFset(real -0.02) VALOFFset(real 0.02) NOVALues wrap(numlist >0 max=1) points(real 100)  ] 	/// // v1.4
 		[ colorprop cuts(real 10) PROPColor(string) ] 														/// // v1.4
 		[ options(string) ] 																				/// // v1.4
 		[ SPLIT(varname) SPLITSHIFT(real 0.01) aspect(numlist max=1 >0.1) xsize(numlist max=1 >=1) ysize(numlist max=1 >=1) *   ] 								/// // v1.5

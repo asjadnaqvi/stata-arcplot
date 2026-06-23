@@ -47,9 +47,9 @@ color gradients, and explicit graph sizing controls.
 
 {p2coldent : {opt offset(num)}}Offset for the y-axis in percent of graph height. Default is {opt offset(0)}. This is useful if rotated labels are cut at the bottom.{p_end}
 
-{p2coldent : {opt aspect(num)}}Control the graph aspect ratio. By default, standard arcplots use {opt aspect(0.5)} and split arcplots use {opt aspect(1)}.{p_end}
+{p2coldent : {opt aspect(num)}}Control the graph aspect ratio. By default, standard arcplots use {opt aspect(0.4)} and split arcplots use {opt aspect(0.75)}. The program may raise the split aspect slightly if needed to keep the layout readable.{p_end}
 
-{p2coldent : {opt xs:ize(num)}, {opt ys:ize(num)}}Explicit graph width and height. Defaults are {opt xsize(2)} and {opt ysize(1)}. With {opt split()}, both default to 1.{p_end}
+{p2coldent : {opt xs:ize(num)}, {opt ys:ize(num)}}Explicit graph width and height. Defaults are {opt xsize(2)} and {opt ysize(1)} for standard plots. With {opt split()}, the defaults are {opt xsize(4)} and {opt ysize(3)}.{p_end}
 
 {p2coldent : {opt options(str)}}Pass standard graph options directly to the final {cmd:twoway} call. This is useful for options such as notes, captions, or graph region controls.{p_end}
 
@@ -89,9 +89,9 @@ color gradients, and explicit graph sizing controls.
 
 {p2coldent : {opt labg:ap(str)}}Gap of the category labels from the center of the node bars. Default is {opt labg(0)}.{p_end}
 
-{p2coldent : {opt labp:os(str)}}Position of the category labels. Default is {opt labpos(6)}.{p_end}
+{p2coldent : {opt labp:os(str)}}Position of the category labels. Default is {opt labpos(9)}.{p_end}
 
-{p2coldent : {opt laboff:set(num)}}Vertical displacement downward of category labels. Default is {opt laboff(0.02)}.{p_end}
+{p2coldent : {opt laboff:set(num)}}Vertical displacement downward of category labels. Default is {opt laboff(-0.02)}.{p_end}
 
 {marker values}{dlgtab:Value labels}
 
@@ -109,7 +109,7 @@ color gradients, and explicit graph sizing controls.
 
 {p2coldent : {opt valp:os(str)}}Position of the value labels. Default is {opt valpos(12)}.{p_end}
 
-{p2coldent : {opt valoff:set(num)}}Vertical displacement upward of value labels. Default is {opt valoff(0.01)}.{p_end}
+{p2coldent : {opt valoff:set(num)}}Vertical displacement upward of value labels. Default is {opt valoff(0.02)}.{p_end}
 
 {marker twoway}{dlgtab:Twoway options}
 
